@@ -46,6 +46,12 @@ dogechain watch txs --min 100000 --json   # only transactions moving 100,000+ DO
 `watch` exits with code 4 if the stream drops. Run it again to reconnect;
 the stream starts by resending the current state.
 
+## Teach your agent
+
+`dogechain skill install` installs the Dogechain skill for Claude Code and
+Codex (`--project` for the current project only). `dogechain skill status`
+shows whether it is current.
+
 ## Safety
 
 `tx` replies can carry `warnings`. A `lookalike_sender` warning means a

@@ -679,3 +679,168 @@ fn handles_null_fields_the_api_allows() {
             "0 transactions waiting in the mempool (0 bytes).\n",
         ));
 }
+
+const SKILL_MD: &str = "---\nname: dogechain\ndescription: Look up Dogecoin.\n---\n# Dogechain\n";
+
+fn sha256_hex(bytes: &[u8]) -> String {
+    // Computed with the same crate the binary uses.
+    use sha2::{Digest, Sha256};
+    Sha256::digest(bytes)
+        .iter()
+        .map(|b| format!("{b:02x}"))
+        .collect()
+}
+
+fn skill_index(url: &str, digest: &str) -> Reply {
+    reply(
+        200,
+        json!({ "skills": [
+            { "name": "other", "type": "skill-md", "url": "/x", "digest": "sha256:00" },
+            { "name": "dogechain", "type": "skill-md", "url": url, "digest": digest,
+              "description": "Look up Dogecoin." }
+        ]}),
+    )
+}
+
+fn skill_file(body: &str) -> Reply {
+    Reply {
+        status: 200,
+        headers: vec![],
+        body: body.into(),
+    }
+}
+
+fn good_skill() -> Vec<Reply> {
+    vec![
+        skill_index(
+            "/.well-known/agent-skills/dogechain/SKILL.md",
+            &format!("sha256:{}", sha256_hex(SKILL_MD.as_bytes())),
+        ),
+        skill_file(SKILL_MD),
+    ]
+}
+
+#[test]
+fn skill_install_status_and_uninstall() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().to_str().unwrap();
+    let skill_md = dir.path().join("dogechain/SKILL.md");
+
+    let m = mock(good_skill());
+    dogechain(&m)
+        .args(["skill", "install", "--dir", root])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Folder: installed"));
+    assert_eq!(std::fs::read_to_string(&skill_md).unwrap(), SKILL_MD);
+    assert_eq!(
+        *m.paths.lock().unwrap(),
+        [
+            "/.well-known/agent-skills/index.json",
+            "/.well-known/agent-skills/dogechain/SKILL.md"
+        ]
+    );
+
+    // Installing again changes nothing.
+    dogechain(&mock(good_skill()))
+        .args(["skill", "install", "--dir", root])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Folder: unchanged"));
+
+    let out = dogechain(&mock(good_skill()))
+        .args(["skill", "status", "--dir", root, "--json"])
+        .output()
+        .unwrap();
+    let v: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(v["data"]["targets"][0]["state"], "up_to_date");
+
+    // A local edit is never overwritten or removed without --force.
+    std::fs::write(&skill_md, "my notes").unwrap();
+    dogechain(&mock(good_skill()))
+        .args(["skill", "install", "--dir", root])
+        .assert()
+        .code(1)
+        .stdout(predicate::str::contains("skipped: changed since installed"));
+    assert_eq!(std::fs::read_to_string(&skill_md).unwrap(), "my notes");
+    dogechain(&mock(vec![]))
+        .args(["skill", "uninstall", "--dir", root])
+        .assert()
+        .code(1);
+    assert!(skill_md.exists());
+    dogechain(&mock(good_skill()))
+        .args(["skill", "install", "--dir", root, "--force"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Folder: updated"));
+    assert_eq!(std::fs::read_to_string(&skill_md).unwrap(), SKILL_MD);
+
+    dogechain(&mock(vec![]))
+        .args(["skill", "uninstall", "--dir", root])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Folder: removed"));
+    assert!(!dir.path().join("dogechain").exists());
+}
+
+#[test]
+fn skill_install_finds_agents_in_home() {
+    let home = tempfile::tempdir().unwrap();
+    std::fs::create_dir(home.path().join(".claude")).unwrap();
+    std::fs::create_dir(home.path().join(".codex")).unwrap();
+    dogechain(&mock(good_skill()))
+        .env("HOME", home.path())
+        .env("USERPROFILE", home.path())
+        .args(["skill", "install"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Claude Code: installed"))
+        .stdout(predicate::str::contains("Codex: installed"));
+    assert!(
+        home.path()
+            .join(".claude/skills/dogechain/SKILL.md")
+            .exists()
+    );
+    assert!(
+        home.path()
+            .join(".agents/skills/dogechain/SKILL.md")
+            .exists()
+    );
+}
+
+#[test]
+fn skill_install_refuses_bad_downloads() {
+    let dir = tempfile::tempdir().unwrap();
+    let root = dir.path().to_str().unwrap();
+    // Digest mismatch: nothing is written.
+    let tampered = vec![
+        skill_index(
+            "/.well-known/agent-skills/dogechain/SKILL.md",
+            "sha256:0000",
+        ),
+        skill_file(SKILL_MD),
+    ];
+    dogechain(&mock(tampered))
+        .args(["skill", "install", "--dir", root])
+        .assert()
+        .code(1)
+        .stderr(predicate::str::contains(
+            "does not match its published digest",
+        ));
+    assert!(!dir.path().join("dogechain").exists());
+    // A skill hosted anywhere but dogechain.com is refused before fetching.
+    let elsewhere = vec![skill_index("https://example.com/SKILL.md", "sha256:00")];
+    let m = mock(elsewhere);
+    dogechain(&m)
+        .args(["skill", "install", "--dir", root])
+        .assert()
+        .code(1)
+        .stderr(predicate::str::contains("not a path on dogechain.com"));
+    assert_eq!(m.paths.lock().unwrap().len(), 1);
+    // --print writes nothing and prints the verified file.
+    dogechain(&mock(good_skill()))
+        .args(["skill", "install", "--print"])
+        .assert()
+        .success()
+        .stdout(SKILL_MD);
+}

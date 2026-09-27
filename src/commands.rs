@@ -12,9 +12,10 @@ use serde_json::{Value, json};
 
 use crate::amount::{Doge, group_thousands};
 use crate::api::Api;
-use crate::cli::{Cli, Command, WatchWhat};
+use crate::cli::{Cli, Command, SkillCommand, SkillLocation, WatchWhat};
 use crate::error::{CliError, Result};
 use crate::model::*;
+use crate::skill::{self, Scope};
 use crate::time::{ago, now, utc, utc_date, utc_minute};
 
 const KOINU_PER_DOGE: f64 = 100_000_000.0;
@@ -111,8 +112,39 @@ pub fn run(cli: Cli, out: &mut dyn Write) -> Result<()> {
             show_chart(out, &data(&env)?, last)
         }
         Command::Watch { what, min } => watch(&api()?, what, min, json, out),
+        Command::Skill(cmd) => match cmd {
+            SkillCommand::Install { print: true, .. } => {
+                let s = skill::fetch(&api()?)?;
+                if json {
+                    let text = String::from_utf8_lossy(&s.bytes);
+                    print_json(
+                        out,
+                        &json!({ "status": "success", "data": { "digest": s.digest, "content": text } }),
+                    )
+                } else {
+                    Ok(out.write_all(&s.bytes)?)
+                }
+            }
+            SkillCommand::Install {
+                location, force, ..
+            } => skill::install(&api()?, &scope(location), force, json, out),
+            SkillCommand::Status { location } => {
+                skill::status(&api()?, &scope(location), json, out)
+            }
+            SkillCommand::Uninstall { location, force } => {
+                skill::uninstall(&scope(location), force, json, out)
+            }
+        },
         Command::Schema => print_json(out, &crate::schema::schema()),
         Command::Guide => Ok(out.write_all(crate::GUIDE.as_bytes())?),
+    }
+}
+
+fn scope(location: SkillLocation) -> Scope {
+    match (location.project, location.dir) {
+        (_, Some(dir)) => Scope::Dir(dir),
+        (true, None) => Scope::Project,
+        (false, None) => Scope::User,
     }
 }
 

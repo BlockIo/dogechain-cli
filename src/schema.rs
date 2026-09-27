@@ -120,6 +120,18 @@ pub fn schema() -> Value {
                 },
                 "notes": "blocks=tip, mempool=mempool, txs=tx, all=every event; the current state is sent first; --min keeps tx events with value_out at least DOGE; exits 4 when the stream drops, so rerun to reconnect"
             },
+            "skill install [--project | --dir DIR] [--print] [--force]": {
+                "does": "download the Dogechain agent skill (SKILL.md) from dogechain.com, verify its published sha256 digest, and install it for each agent found: ~/.claude/skills/dogechain (Claude Code), ~/.agents/skills/dogechain (Codex); --project uses .claude/skills and .agents/skills in the current directory; --print only prints it",
+                "source": "https://dogechain.com/.well-known/agent-skills/index.json",
+                "data": { "skill": { "name": "dogechain", "digest": "sha256:<hex>" }, "targets": "[{agent, path, result: installed | updated | unchanged | skipped: …}]" },
+                "notes": "never overwrites a copy changed since it was installed unless --force; exits 1 if any copy was skipped"
+            },
+            "skill status [--project | --dir DIR]": {
+                "data": { "published_digest": "sha256:<hex> | null (offline)", "targets": "[{agent, path, state: not_installed | up_to_date | outdated | modified}]" }
+            },
+            "skill uninstall [--project | --dir DIR] [--force]": {
+                "data": { "targets": "[{agent, path, result: removed | not installed | skipped: …}]" }
+            },
             "schema": { "does": "print this description" },
             "guide": { "does": "print the usage guide for scripts and AI agents" }
         }

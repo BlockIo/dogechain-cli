@@ -10,6 +10,17 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-09-27
+
+### Added
+
+- `dogechain skill install`, `status` and `uninstall`: installs the Dogechain
+  agent skill for Claude Code (`~/.claude/skills`) and Codex
+  (`~/.agents/skills`), or into the current project with `--project`, or any
+  folder with `--dir`. The skill is downloaded from dogechain.com and checked
+  against its published SHA-256 digest before anything is written; copies
+  changed since installation are kept unless `--force`.
+
 ## [0.3.1] - 2026-09-27
 
 ### Fixed
@@ -84,7 +95,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.2...v0.2.0
