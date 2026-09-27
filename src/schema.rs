@@ -100,7 +100,7 @@ pub fn schema() -> Value {
                 "api": "GET /api/v3/chart/<series>?interval=I",
                 "series": {
                     "numbers": ["tx_count", "tx_per_min", "block_size", "block_interval", "fees_median", "fees_total", "hashrate", "difficulty", "supply", "price_usd", "active_addresses", "new_addresses", "lookalikes", "lookalike_senders"],
-                    "objects": ["pool_share", "transfers", "holder_share"]
+                    "objects": ["pool_share", "transfers", "transfers_sent", "holder_share"]
                 },
                 "intervals": ["minute", "hour", "day", "block", "week", "month"],
                 "data": "series, interval, points[{t, label, v}]; v is a number, an object (for the object series) or null",

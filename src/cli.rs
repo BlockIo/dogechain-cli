@@ -125,11 +125,12 @@ pub enum Command {
         /// Series name, e.g. tx_count, block_size, block_interval, fees_median,
         /// fees_total, hashrate, difficulty, supply, price_usd, tx_per_min,
         /// active_addresses, new_addresses, lookalikes, lookalike_senders,
-        /// pool_share, transfers, holder_share
+        /// pool_share, transfers, transfers_sent, holder_share
         series: String,
 
         /// Time bucket for each point. `minute` works only with tx_per_min;
-        /// pool_share, transfers and holder_share take `day` (some also `hour`)
+        /// pool_share, transfers, transfers_sent and holder_share take `day`
+        /// (some also `hour`)
         #[arg(long, value_enum, default_value_t = Interval::Day)]
         interval: Interval,
 
