@@ -844,3 +844,163 @@ fn skill_install_refuses_bad_downloads() {
         .success()
         .stdout(SKILL_MD);
 }
+
+/// Stand-ins for the `claude` and `codex` tools: they log their arguments and
+/// keep the configured URL in a file, like the real ones keep their config.
+#[cfg(unix)]
+fn fake_agents(dir: &std::path::Path) -> std::path::PathBuf {
+    use std::os::unix::fs::PermissionsExt;
+    let bin = dir.join("bin");
+    std::fs::create_dir_all(&bin).unwrap();
+    let claude = r#"#!/bin/sh
+echo "claude $*" >> "$FAKE_DIR/log"
+state="$FAKE_DIR/claude-url"
+case "$1 $2" in
+  "mcp get") [ -f "$state" ] || { echo 'No MCP server named "dogechain".' >&2; exit 1; }
+             printf 'dogechain:\n  Scope: User config\n  Type: http\n  URL: %s\n' "$(cat "$state")" ;;
+  "mcp add") for a; do last="$a"; done; echo "$last" > "$state" ;;
+  "mcp remove") rm -f "$state" ;;
+esac
+"#;
+    let codex = r#"#!/bin/sh
+echo "codex $*" >> "$FAKE_DIR/log"
+state="$FAKE_DIR/codex-url"
+case "$1 $2" in
+  "mcp get") [ -f "$state" ] || { echo "Error: No MCP server named 'dogechain' found." >&2; exit 1; }
+             printf '{"name":"dogechain","transport":{"type":"streamable_http","url":"%s"}}\n' "$(cat "$state")" ;;
+  "mcp add") for a; do last="$a"; done; echo "$last" > "$state" ;;
+  "mcp remove") rm -f "$state" ;;
+esac
+"#;
+    for (name, body) in [("claude", claude), ("codex", codex)] {
+        let path = bin.join(name);
+        std::fs::write(&path, body).unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o755)).unwrap();
+    }
+    bin
+}
+
+#[cfg(unix)]
+fn with_agents(dir: &std::path::Path, bin: &std::path::Path) -> Command {
+    let mut cmd = Command::cargo_bin("dogechain").unwrap();
+    // The stand-ins need the system's `cat` and `rm`; `bin` comes first.
+    cmd.env("PATH", format!("{}:/bin:/usr/bin", bin.display()))
+        .env("FAKE_DIR", dir)
+        .env_remove("DOGECHAIN_JSON");
+    cmd
+}
+
+#[cfg(unix)]
+#[test]
+fn mcp_install_status_and_uninstall() {
+    let dir = tempfile::tempdir().unwrap();
+    let bin = fake_agents(dir.path());
+    let url = "https://dogechain.com/mcp";
+    let log = || std::fs::read_to_string(dir.path().join("log")).unwrap_or_default();
+
+    with_agents(dir.path(), &bin)
+        .args(["mcp", "install"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Claude Code: added\nCodex: added\n",
+        ));
+    assert!(log().contains(&format!(
+        "claude mcp add --transport http --scope user dogechain {url}"
+    )));
+    assert!(log().contains(&format!("codex mcp add dogechain --url {url}")));
+
+    with_agents(dir.path(), &bin)
+        .args(["mcp", "install"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Claude Code: already added\nCodex: already added\n",
+        ));
+
+    let out = with_agents(dir.path(), &bin)
+        .args(["mcp", "status", "--json"])
+        .output()
+        .unwrap();
+    let v: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(v["data"]["agents"][0]["result"], format!("added ({url})"));
+
+    with_agents(dir.path(), &bin)
+        .args(["mcp", "uninstall"])
+        .assert()
+        .success()
+        .stdout("Claude Code: removed\nCodex: removed\n");
+    assert!(!dir.path().join("claude-url").exists());
+}
+
+#[cfg(unix)]
+#[test]
+fn mcp_install_keeps_a_different_dogechain_server() {
+    let dir = tempfile::tempdir().unwrap();
+    let bin = fake_agents(dir.path());
+    std::fs::write(dir.path().join("codex-url"), "https://example.com/mcp\n").unwrap();
+    with_agents(dir.path(), &bin)
+        .args(["mcp", "install"])
+        .assert()
+        .code(1)
+        .stdout(predicate::str::contains(
+            "Codex: skipped: a server named dogechain already points to https://example.com/mcp",
+        ));
+    assert_eq!(
+        std::fs::read_to_string(dir.path().join("codex-url")).unwrap(),
+        "https://example.com/mcp\n"
+    );
+    with_agents(dir.path(), &bin)
+        .args(["mcp", "install", "--force"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Codex: replaced"));
+    assert_eq!(
+        std::fs::read_to_string(dir.path().join("codex-url"))
+            .unwrap()
+            .trim(),
+        "https://dogechain.com/mcp"
+    );
+}
+
+#[cfg(unix)]
+#[test]
+fn mcp_install_project_scope_and_missing_agents() {
+    let dir = tempfile::tempdir().unwrap();
+    let bin = fake_agents(dir.path());
+    with_agents(dir.path(), &bin)
+        .args(["mcp", "install", "--project"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Claude Code: added\nCodex: skipped: no per-project setting",
+        ));
+    let log = std::fs::read_to_string(dir.path().join("log")).unwrap();
+    assert!(log.contains("claude mcp add --transport http --scope project dogechain"));
+    assert!(!log.contains("codex mcp add"));
+
+    let empty = dir.path().join("empty");
+    std::fs::create_dir(&empty).unwrap();
+    with_agents(dir.path(), &empty)
+        .args(["mcp", "install"])
+        .assert()
+        .code(3)
+        .stderr(predicate::str::contains("dogechain mcp install --print"));
+}
+
+#[test]
+fn mcp_print_changes_nothing() {
+    let out = Command::cargo_bin("dogechain")
+        .unwrap()
+        .env("PATH", "")
+        .args(["mcp", "install", "--print", "--json"])
+        .output()
+        .unwrap();
+    assert!(out.status.success());
+    let v: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(v["data"]["server"], "https://dogechain.com/mcp");
+    assert_eq!(
+        v["data"]["codex"]["command"],
+        "codex mcp add dogechain --url https://dogechain.com/mcp"
+    );
+}

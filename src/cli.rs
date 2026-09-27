@@ -158,6 +158,10 @@ pub enum Command {
     #[command(subcommand)]
     Skill(SkillCommand),
 
+    /// Add the Dogechain MCP server to AI agents (Claude Code, Codex)
+    #[command(subcommand)]
+    Mcp(McpCommand),
+
     /// Print every command with its API endpoint and output shape, as JSON
     Schema,
 
@@ -257,4 +261,42 @@ pub struct SkillLocation {
     /// Use this skills folder instead; the skill goes in <DIR>/dogechain
     #[arg(long, value_name = "DIR")]
     pub dir: Option<std::path::PathBuf>,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum McpCommand {
+    /// Add https://dogechain.com/mcp to Claude Code and Codex
+    #[command(
+        after_help = "Uses each agent's own command (`claude mcp add`, `codex mcp add`); nothing\n\
+            runs locally. For Cursor, VS Code, Gemini CLI, Claude.ai and ChatGPT, --print\n\
+            shows what to add.\n\n\
+            Examples:\n  dogechain mcp install\n  dogechain mcp install --project\n  dogechain mcp install --print"
+    )]
+    Install {
+        /// Add it to the current project only (Claude Code's project scope)
+        #[arg(long)]
+        project: bool,
+
+        /// Show the setup for every supported app instead of changing anything
+        #[arg(long)]
+        print: bool,
+
+        /// Replace a server named `dogechain` that points somewhere else
+        #[arg(long)]
+        force: bool,
+    },
+
+    /// Show which agents have the Dogechain MCP server
+    Status,
+
+    /// Remove the Dogechain MCP server from Claude Code and Codex
+    Uninstall {
+        /// Remove it from the current project only (Claude Code)
+        #[arg(long)]
+        project: bool,
+
+        /// Also remove a server named `dogechain` that points somewhere else
+        #[arg(long)]
+        force: bool,
+    },
 }

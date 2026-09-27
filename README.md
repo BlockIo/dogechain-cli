@@ -68,6 +68,7 @@ Prebuilt binaries for each platform are attached to every
 | `chart <series> [--interval I] [--last N]` | A chart series as a table (latest 30 points by default) |
 | `watch [blocks\|mempool\|txs\|all] [--min DOGE]` | Live events until interrupted |
 | `skill install` / `status` / `uninstall` | The Dogechain skill for AI agents (Claude Code, Codex) |
+| `mcp install` / `status` / `uninstall` | The Dogechain MCP server for AI agents (Claude Code, Codex; `--print` for others) |
 | `schema` | Every command's API endpoint and output shape, as JSON |
 | `guide` | A usage guide for scripts and AI agents |
 
@@ -88,6 +89,10 @@ Run `dogechain <command> --help` for details and examples.
   to look things up. The skill is downloaded from dogechain.com and checked
   against its published SHA-256 digest; `--project` installs it into the
   current project instead, `--print` just shows it.
+- `dogechain mcp install` adds the hosted Dogechain MCP server
+  (`https://dogechain.com/mcp`) to Claude Code and Codex using their own
+  `mcp add` commands. `dogechain mcp install --print` shows the setup for
+  Cursor, VS Code, Gemini CLI, Claude.ai and ChatGPT.
 
 ### Exit codes
 

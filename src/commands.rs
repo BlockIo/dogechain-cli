@@ -12,8 +12,9 @@ use serde_json::{Value, json};
 
 use crate::amount::{Doge, group_thousands};
 use crate::api::Api;
-use crate::cli::{Cli, Command, SkillCommand, SkillLocation, WatchWhat};
+use crate::cli::{Cli, Command, McpCommand, SkillCommand, SkillLocation, WatchWhat};
 use crate::error::{CliError, Result};
+use crate::mcp;
 use crate::model::*;
 use crate::skill::{self, Scope};
 use crate::time::{ago, now, utc, utc_date, utc_minute};
@@ -134,6 +135,16 @@ pub fn run(cli: Cli, out: &mut dyn Write) -> Result<()> {
             SkillCommand::Uninstall { location, force } => {
                 skill::uninstall(&scope(location), force, json, out)
             }
+        },
+        Command::Mcp(cmd) => match cmd {
+            McpCommand::Install {
+                project,
+                print: true,
+                ..
+            } => mcp::print(project, json, out),
+            McpCommand::Install { project, force, .. } => mcp::install(project, force, json, out),
+            McpCommand::Status => mcp::status(json, out),
+            McpCommand::Uninstall { project, force } => mcp::uninstall(project, force, json, out),
         },
         Command::Schema => print_json(out, &crate::schema::schema()),
         Command::Guide => Ok(out.write_all(crate::GUIDE.as_bytes())?),
