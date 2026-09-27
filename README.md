@@ -65,7 +65,7 @@ Prebuilt binaries for each platform are attached to every
 | `fees` | What sending DOGE costs right now |
 | `supply` | How many DOGE exist and how fast the supply grows |
 | `richlist [--page N]` | The top 1,000 addresses by balance, 100 per page (alias `top`) |
-| `chart <series> [--interval I]` | A chart series as a table |
+| `chart <series> [--interval I] [--last N]` | A chart series as a table (latest 30 points by default) |
 | `watch [blocks\|mempool\|txs\|all] [--min DOGE]` | Live events until interrupted |
 | `schema` | Every command's API endpoint and output shape, as JSON |
 | `guide` | A usage guide for scripts and AI agents |

@@ -597,3 +597,34 @@ fn text_output_strips_terminal_control_characters() {
         .code(3)
         .stderr("dogechain: gone[31m\n");
 }
+
+#[test]
+fn chart_labels_come_from_t_when_missing_and_last_limits_text() {
+    let points: Vec<Value> = (0..40)
+        .map(|i| json!({ "label": "", "t": 1_790_380_800 - 86_400 * (39 - i), "v": i }))
+        .collect();
+    let chart = json!({ "series": "tx_count", "interval": "day", "points": points });
+    let out = dogechain(&mock(vec![ok(chart.clone())]))
+        .args(["chart", "tx_count", "--last", "2"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        String::from_utf8(out.stdout).unwrap(),
+        "tx_count by day, last 2 of 40 points (--last 0 for all)\n  2026-09-25  38\n  2026-09-26  39\n"
+    );
+    // --json is the API reply, every point included.
+    let out = dogechain(&mock(vec![ok(chart)]))
+        .args(["chart", "tx_count", "--last", "2", "--json"])
+        .output()
+        .unwrap();
+    let v: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(v["data"]["points"].as_array().unwrap().len(), 40);
+
+    let holders = json!({ "series": "holder_share", "interval": "day",
+        "points": [{ "t": 1_790_467_200, "v": { "top10": 0.44522163 } }] });
+    dogechain(&mock(vec![ok(holders)]))
+        .args(["chart", "holder_share"])
+        .assert()
+        .success()
+        .stdout("holder_share by day\n  2026-09-27  top10 44.52%\n");
+}

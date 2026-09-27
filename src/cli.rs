@@ -119,7 +119,7 @@ pub enum Command {
 
     /// Show a chart series as a table of values
     #[command(
-        after_help = "Examples:\n  dogechain chart tx_count --interval day\n  dogechain chart tx_per_min --interval minute --json"
+        after_help = "Examples:\n  dogechain chart tx_count --interval day\n  dogechain chart pool_share --last 7\n  dogechain chart tx_per_min --interval minute --json"
     )]
     Chart {
         /// Series name, e.g. tx_count, block_size, block_interval, fees_median,
@@ -132,6 +132,11 @@ pub enum Command {
         /// pool_share, transfers and holder_share take `day` (some also `hour`)
         #[arg(long, value_enum, default_value_t = Interval::Day)]
         interval: Interval,
+
+        /// Text output shows only the most recent N points (0 for all).
+        /// `--json` always returns every point.
+        #[arg(long, value_name = "N", default_value_t = 30)]
+        last: usize,
     },
 
     /// Stream live events until interrupted (one JSON object per line with --json)

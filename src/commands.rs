@@ -15,7 +15,7 @@ use crate::api::Api;
 use crate::cli::{Cli, Command, WatchWhat};
 use crate::error::{CliError, Result};
 use crate::model::*;
-use crate::time::{ago, now, utc};
+use crate::time::{ago, now, utc, utc_date, utc_minute};
 
 const KOINU_PER_DOGE: f64 = 100_000_000.0;
 const ADDRESS_PAGE_SIZE: u64 = 10;
@@ -96,7 +96,11 @@ pub fn run(cli: Cli, out: &mut dyn Write) -> Result<()> {
             }
             show_richlist(out, &data(&env)?)
         }
-        Command::Chart { series, interval } => {
+        Command::Chart {
+            series,
+            interval,
+            last,
+        } => {
             let env = api()?.get(
                 &["chart", &series],
                 &[("interval", interval.as_str().into())],
@@ -104,7 +108,7 @@ pub fn run(cli: Cli, out: &mut dyn Write) -> Result<()> {
             if json {
                 return print_json(out, &env);
             }
-            show_chart(out, &data(&env)?)
+            show_chart(out, &data(&env)?, last)
         }
         Command::Watch { what, min } => watch(&api()?, what, min, json, out),
         Command::Schema => print_json(out, &crate::schema::schema()),
@@ -174,7 +178,7 @@ fn show_block(out: &mut dyn Write, b: &Block) -> Result<()> {
         "Confirmations {}",
         group_thousands(b.confirmations.into())
     )?;
-    writeln!(out, "Difficulty {}", b.difficulty)?;
+    writeln!(out, "Difficulty {}", format_difficulty(&b.difficulty))?;
     writeln!(out, "Hash {}", b.hash)?;
     if let Some(prev) = &b.previous_block_hash {
         writeln!(out, "Previous block {prev}")?;
@@ -364,7 +368,7 @@ fn show_network(out: &mut dyn Write, r: &NetworkReply) -> Result<()> {
             doge_per_kb(next.median_fee_rate)
         )?;
     }
-    writeln!(out, "Hashrate {}", i.hashrate)?;
+    writeln!(out, "Hashrate {}", format_hashrate(&i.hashrate))?;
     if let Some(p) = r.price_usd {
         writeln!(out, "Price ${p:.4}")?;
     }
@@ -459,14 +463,51 @@ fn show_richlist(out: &mut dyn Write, r: &RichlistReply) -> Result<()> {
     Ok(())
 }
 
-fn show_chart(out: &mut dyn Write, r: &ChartReply) -> Result<()> {
-    writeln!(out, "{} by {}", r.series, r.interval)?;
-    let width = r.points.iter().map(|p| p.label.len()).max().unwrap_or(0);
-    for p in &r.points {
-        let v = format_chart_value(&p.v);
-        writeln!(out, "  {:<width$}  {v}", p.label)?;
+fn show_chart(out: &mut dyn Write, r: &ChartReply, last: usize) -> Result<()> {
+    let total = r.points.len();
+    let shown = if last == 0 { total } else { last.min(total) };
+    let points = &r.points[total - shown..];
+    if shown < total {
+        writeln!(
+            out,
+            "{} by {}, last {} of {} points (--last 0 for all)",
+            r.series,
+            r.interval,
+            group_thousands(shown as i128),
+            group_thousands(total as i128)
+        )?;
+    } else {
+        writeln!(out, "{} by {}", r.series, r.interval)?;
+    }
+    let rows: Vec<(String, String)> = points
+        .iter()
+        .map(|p| {
+            (
+                point_label(p, &r.interval),
+                format_chart_value(&r.series, &p.v),
+            )
+        })
+        .collect();
+    let width = rows
+        .iter()
+        .map(|(l, _)| l.chars().count())
+        .max()
+        .unwrap_or(0);
+    for (label, v) in rows {
+        writeln!(out, "  {label:<width$}  {v}")?;
     }
     Ok(())
+}
+
+/// The API's label, or a UTC date or time from `t` when it sends none.
+fn point_label(p: &ChartPoint, interval: &str) -> String {
+    if !p.label.is_empty() {
+        return p.label.clone();
+    }
+    match interval {
+        "minute" | "hour" => utc_minute(p.t),
+        _ => utc_date(p.t),
+    }
 }
 
 fn watch(
@@ -584,9 +625,10 @@ fn describe_event(event: &str, d: &Value) -> String {
     line.unwrap_or_else(|| format!("{event} {d}"))
 }
 
-/// Chart values are numbers for most series and objects for breakdowns such
-/// as pool_share.
-fn format_chart_value(v: &Value) -> String {
+/// Chart values are numbers for most series and objects for breakdowns:
+/// pool_share (blocks per pool), holder_share (fractions of supply) and
+/// transfers (count and DOGE sent per size bucket).
+fn format_chart_value(series: &str, v: &Value) -> String {
     match v {
         Value::Null => "no data".into(),
         Value::Number(n) => n
@@ -595,11 +637,54 @@ fn format_chart_value(v: &Value) -> String {
             .unwrap_or_else(|| n.to_string()),
         Value::Object(map) => map
             .iter()
-            .map(|(k, v)| format!("{k} {}", format_chart_value(v)))
+            .map(|(k, v)| match (series, v) {
+                ("holder_share", Value::Number(n)) => {
+                    format!("{k} {:.2}%", n.as_f64().unwrap_or(0.0) * 100.0)
+                }
+                (_, Value::Object(o)) if o.contains_key("count") => {
+                    let count = o["count"].as_f64().map(format_number).unwrap_or_default();
+                    match o.get("sent").and_then(Value::as_str).and_then(Doge::parse) {
+                        Some(sent) => format!("{k} {count} ({} DOGE)", sent.display(0)),
+                        None => format!("{k} {count}"),
+                    }
+                }
+                _ => format!("{k} {}", format_chart_value(series, v)),
+            })
             .collect::<Vec<_>>()
             .join(", "),
         Value::String(s) => s.clone(),
         other => other.to_string(),
+    }
+}
+
+/// Hashes per second with an SI prefix: `2.79 PH/s`. Falls back to the raw
+/// text if it is not a number.
+fn format_hashrate(raw: &str) -> String {
+    let Ok(h) = raw.trim().parse::<f64>() else {
+        return raw.to_owned();
+    };
+    const UNITS: [&str; 7] = ["H/s", "kH/s", "MH/s", "GH/s", "TH/s", "PH/s", "EH/s"];
+    let mut value = h;
+    let mut unit = 0;
+    while value >= 1000.0 && unit < UNITS.len() - 1 {
+        value /= 1000.0;
+        unit += 1;
+    }
+    format!("{value:.2} {}", UNITS[unit])
+}
+
+/// `47,952,738.33`. Falls back to the raw text if it is not a number.
+fn format_difficulty(raw: &str) -> String {
+    match raw.trim().parse::<f64>() {
+        Ok(d) if d.is_finite() => {
+            let cents = (d * 100.0).round() as i128;
+            format!(
+                "{}.{:02}",
+                group_thousands(cents / 100),
+                (cents % 100).abs()
+            )
+        }
+        _ => raw.to_owned(),
     }
 }
 
@@ -635,6 +720,34 @@ fn format_number(v: f64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn formats_hashrate_and_difficulty() {
+        assert_eq!(format_hashrate("2789460872749466"), "2.79 PH/s");
+        assert_eq!(format_hashrate("999"), "999.00 H/s");
+        assert_eq!(format_hashrate("n/a"), "n/a");
+        assert_eq!(format_difficulty("47952738.33432145"), "47,952,738.33");
+        assert_eq!(format_difficulty("0.5"), "0.50");
+    }
+
+    #[test]
+    fn formats_breakdown_series() {
+        let holders = json!({"top10": 0.44522163, "top100": 0.66201739});
+        assert_eq!(
+            format_chart_value("holder_share", &holders),
+            "top10 44.52%, top100 66.20%"
+        );
+        let transfers = json!({"lt_1": {"count": 11407, "sent": "227.928"}});
+        assert_eq!(
+            format_chart_value("transfers", &transfers),
+            "lt_1 11,407 (228 DOGE)"
+        );
+        let pools = json!({"F2Pool": 446, "unknown": 243});
+        assert_eq!(
+            format_chart_value("pool_share", &pools),
+            "F2Pool 446, unknown 243"
+        );
+    }
 
     #[test]
     fn converts_fee_rates() {

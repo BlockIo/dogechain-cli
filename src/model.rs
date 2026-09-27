@@ -241,6 +241,10 @@ pub struct ChartReply {
 
 #[derive(Debug, Deserialize)]
 pub struct ChartPoint {
+    /// Unix seconds at the start of the bucket.
+    pub t: i64,
+    /// Empty or absent for some intervals and series; derived from `t` then.
+    #[serde(default)]
     pub label: String,
     /// A number for most series, an object for breakdowns (e.g. pool_share),
     /// null where there is no data.
