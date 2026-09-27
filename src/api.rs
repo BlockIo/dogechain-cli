@@ -30,8 +30,22 @@ impl Api {
     pub fn new(timeout: Duration) -> Result<Api> {
         let base = Url::parse(&base_url())
             .map_err(|e| CliError::Other(format!("invalid API URL: {e}")))?;
+        // Follow redirects only within the same host, so nothing the CLI
+        // fetches can be sent elsewhere.
+        let redirects = reqwest::redirect::Policy::custom(|attempt| {
+            let same_host = attempt
+                .previous()
+                .first()
+                .is_some_and(|first| first.host_str() == attempt.url().host_str());
+            if attempt.previous().len() > 5 || !same_host {
+                attempt.stop()
+            } else {
+                attempt.follow()
+            }
+        });
         let http = Client::builder()
             .user_agent(concat!("dogechain-cli/", env!("CARGO_PKG_VERSION")))
+            .redirect(redirects)
             .connect_timeout(timeout)
             .build()
             .map_err(|e| CliError::Other(format!("could not start the HTTP client: {e}")))?;
@@ -102,6 +116,43 @@ impl Api {
                 format!("dogechain.com returned HTTP {}", s.as_u16())
             }))),
         }
+    }
+
+    /// GETs a file from the site itself (not the JSON API), such as the
+    /// agent-skills index. `path` must be an absolute path on the same host;
+    /// replies larger than `max_bytes` are refused.
+    pub fn fetch_site_file(&self, path: &str, max_bytes: usize) -> Result<Vec<u8>> {
+        if !path.starts_with('/') || path.starts_with("//") {
+            return Err(CliError::Other(format!(
+                "refusing to fetch {path:?}: not a path on dogechain.com"
+            )));
+        }
+        let url = self
+            .base
+            .join(path)
+            .map_err(|e| CliError::Other(format!("invalid path {path:?}: {e}")))?;
+        let resp = self.send_with_retry(|| self.http.get(url.clone()).timeout(self.timeout))?;
+        let status = resp.status();
+        if !status.is_success() {
+            return Err(match status {
+                StatusCode::NOT_FOUND => CliError::NotFound(format!("{path} not found")),
+                s if is_unavailable(s) => CliError::Unavailable(format!(
+                    "dogechain.com is unavailable right now (HTTP {})",
+                    s.as_u16()
+                )),
+                s => CliError::Other(format!("{path}: HTTP {}", s.as_u16())),
+            });
+        }
+        let body = resp
+            .bytes()
+            .map_err(|e| CliError::Unavailable(format!("could not read {path}: {e}")))?;
+        if body.len() > max_bytes {
+            return Err(CliError::Other(format!(
+                "{path} is larger than expected ({} bytes)",
+                body.len()
+            )));
+        }
+        Ok(body.to_vec())
     }
 
     /// Opens the live event stream (`/api/v3/live`, server-sent events) and

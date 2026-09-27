@@ -67,6 +67,7 @@ Prebuilt binaries for each platform are attached to every
 | `richlist [--page N]` | The top 1,000 addresses by balance, 100 per page (alias `top`) |
 | `chart <series> [--interval I] [--last N]` | A chart series as a table (latest 30 points by default) |
 | `watch [blocks\|mempool\|txs\|all] [--min DOGE]` | Live events until interrupted |
+| `skill install` / `status` / `uninstall` | The Dogechain skill for AI agents (Claude Code, Codex) |
 | `schema` | Every command's API endpoint and output shape, as JSON |
 | `guide` | A usage guide for scripts and AI agents |
 
@@ -82,6 +83,11 @@ Run `dogechain <command> --help` for details and examples.
 - Amounts are decimal strings in DOGE; times are unix seconds.
 - `dogechain schema` describes every command as JSON, and `dogechain guide`
   (also [AGENTS.md](AGENTS.md)) is a short guide for agents.
+- `dogechain skill install` installs the Dogechain skill for Claude Code
+  (`~/.claude/skills`) and Codex (`~/.agents/skills`), so your agent knows how
+  to look things up. The skill is downloaded from dogechain.com and checked
+  against its published SHA-256 digest; `--project` installs it into the
+  current project instead, `--print` just shows it.
 
 ### Exit codes
 

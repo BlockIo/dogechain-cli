@@ -154,6 +154,10 @@ pub enum Command {
         min: Option<Doge>,
     },
 
+    /// Install the Dogechain skill for AI agents (Claude Code, Codex)
+    #[command(subcommand)]
+    Skill(SkillCommand),
+
     /// Print every command with its API endpoint and output shape, as JSON
     Schema,
 
@@ -201,4 +205,56 @@ fn parse_doge(s: &str) -> Result<Doge, String> {
         Some(d) if !d.is_negative() => Ok(d),
         _ => Err("expected an amount of DOGE, such as 1000 or 0.5".into()),
     }
+}
+
+#[derive(Debug, Subcommand)]
+pub enum SkillCommand {
+    /// Download the skill from dogechain.com, verify it and install it
+    #[command(
+        after_help = "Installs into ~/.claude/skills (Claude Code) and ~/.agents/skills (Codex) for\n\
+            each agent found. The skill is fetched from dogechain.com and checked against\n\
+            its published SHA-256 digest before anything is written.\n\n\
+            Examples:\n  dogechain skill install\n  dogechain skill install --project\n  \
+            dogechain skill install --dir ~/my-agent/skills\n  dogechain skill install --print"
+    )]
+    Install {
+        #[command(flatten)]
+        location: SkillLocation,
+
+        /// Print the verified SKILL.md instead of installing it
+        #[arg(long)]
+        print: bool,
+
+        /// Replace copies that were changed since they were installed
+        #[arg(long)]
+        force: bool,
+    },
+
+    /// Show where the skill is installed and whether it is up to date
+    Status {
+        #[command(flatten)]
+        location: SkillLocation,
+    },
+
+    /// Remove the installed skill
+    Uninstall {
+        #[command(flatten)]
+        location: SkillLocation,
+
+        /// Also remove copies that were changed since they were installed
+        #[arg(long)]
+        force: bool,
+    },
+}
+
+#[derive(Debug, clap::Args)]
+pub struct SkillLocation {
+    /// Use the agents' folders in the current project (.claude/skills and
+    /// .agents/skills) instead of your home directory
+    #[arg(long, conflicts_with = "dir")]
+    pub project: bool,
+
+    /// Use this skills folder instead; the skill goes in <DIR>/dogechain
+    #[arg(long, value_name = "DIR")]
+    pub dir: Option<std::path::PathBuf>,
 }

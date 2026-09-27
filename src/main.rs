@@ -8,6 +8,7 @@ mod error;
 mod model;
 mod sanitize;
 mod schema;
+mod skill;
 mod time;
 
 use std::io::{self, Write};
