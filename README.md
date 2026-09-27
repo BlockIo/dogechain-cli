@@ -126,11 +126,8 @@ in debug builds.
 
 ### Releasing
 
-1. Update the version in `Cargo.toml` and move the `Unreleased` changelog
-   entries under the new version.
-2. Commit, then tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
-3. The release workflow builds every platform and publishes a GitHub release
-   with installers.
+Maintainers release by pushing a version tag; see [CHANGELOG.md](CHANGELOG.md)
+for what each release contains.
 
 ## License
 
