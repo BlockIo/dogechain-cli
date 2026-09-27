@@ -6,6 +6,7 @@ mod cli;
 mod commands;
 mod error;
 mod model;
+mod sanitize;
 mod schema;
 mod time;
 
@@ -27,8 +28,12 @@ fn main() -> ExitCode {
         Err(e) => return usage_error(e),
     };
     let json = cli.json;
-    let stdout = io::stdout();
-    let mut out = io::BufWriter::new(stdout.lock());
+    let stdout = io::BufWriter::new(io::stdout().lock());
+    let mut out: Box<dyn Write> = if json {
+        Box::new(stdout)
+    } else {
+        Box::new(sanitize::Sanitized(stdout))
+    };
     let result = commands::run(cli, &mut out).and_then(|()| Ok(out.flush()?));
     match result {
         Ok(()) | Err(CliError::OutputClosed) => ExitCode::from(exit::OK),
@@ -46,7 +51,7 @@ fn report(e: &CliError, json: bool) {
     let _ = if json {
         writeln!(err, "{}", e.to_json())
     } else {
-        writeln!(err, "dogechain: {e}")
+        writeln!(err, "dogechain: {}", sanitize::clean(&e.to_string()))
     };
 }
 

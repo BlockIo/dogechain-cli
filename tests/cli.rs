@@ -570,3 +570,30 @@ fn non_api_replies_count_as_unavailable() {
             .stderr(predicate::str::contains("did not return API data"));
     }
 }
+
+#[test]
+fn text_output_strips_terminal_control_characters() {
+    let labels = json!({ "labels": { ADDR: { "label": "\u{1b}]0;pwned\u{7}\u{1b}[2JPool", "kind": null } } });
+    dogechain(&mock(vec![ok(labels.clone())]))
+        .args(["labels", ADDR])
+        .assert()
+        .success()
+        .stdout(format!("{ADDR}  ]0;pwned[2JPool\n"));
+    // JSON output keeps the data exactly, escaped by the JSON encoder.
+    let out = dogechain(&mock(vec![ok(labels)]))
+        .args(["labels", ADDR, "--json"])
+        .output()
+        .unwrap();
+    assert!(!out.stdout.contains(&0x1b));
+    let v: Value = serde_json::from_slice(&out.stdout).unwrap();
+    assert_eq!(
+        v["data"]["labels"][ADDR]["label"],
+        "\u{1b}]0;pwned\u{7}\u{1b}[2JPool"
+    );
+    // Error messages from the API are cleaned too.
+    dogechain(&mock(vec![fail(404, "gone\u{1b}[31m")]))
+        .args(["tx", TXID])
+        .assert()
+        .code(3)
+        .stderr("dogechain: gone[31m\n");
+}

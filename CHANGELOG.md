@@ -10,6 +10,18 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-09-27
+
+### Security
+
+- Text output now strips terminal control characters (such as escape
+  sequences) from everything it prints, including API error messages, so
+  data from the network cannot drive the terminal. `--json` output is
+  unchanged.
+- Release artifacts carry GitHub build provenance attestations; verify one
+  with `gh attestation verify <file> -R BlockIo/dogechain-cli`.
+- Release and CI workflows pin every third-party action to an exact commit.
+
 ## [0.1.0] - 2026-09-27
 
 ### Added
@@ -29,5 +41,6 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/BlockIo/dogechain-cli/releases/tag/v0.1.0
