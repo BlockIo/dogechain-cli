@@ -628,3 +628,24 @@ fn chart_labels_come_from_t_when_missing_and_last_limits_text() {
         .success()
         .stdout("holder_share by day\n  2026-09-27  top10 44.52%\n");
 }
+
+#[test]
+fn marks_coins_paid_to_a_public_key() {
+    let address = json!({
+        "address": ADDR, "page": 1, "label": null,
+        "summary": { "confirmed_balance": "10000.00000000", "unconfirmed_balance": "0.00000000",
+                     "confirmed_received": "10000.00000000", "txs_received": 1, "txs_sent": 0, "txs_total": 1 },
+        "transactions": [
+            { "hash": TXID, "block": 1000, "time": 1_390_000_000, "value_received": "10000.00000000",
+              "value_sent": "0.00000000", "balance_change": "10000.00000000", "price": null, "p2pk": true }
+        ]
+    });
+    dogechain(&mock(vec![ok(address)]))
+        .args(["address", ADDR])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("+10,000 DOGE  "))
+        .stdout(predicate::str::contains(format!(
+            "{TXID}  (paid to a public key)\n"
+        )));
+}

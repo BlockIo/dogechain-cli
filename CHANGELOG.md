@@ -10,6 +10,11 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+### Added
+
+- `address` and `richlist` mark coins paid to an address's public key
+  ("paid to a public key").
+
 ## [0.2.0] - 2026-09-27
 
 ### Added

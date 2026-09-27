@@ -70,8 +70,8 @@ pub fn schema() -> Value {
             "address <address> [--page N]": {
                 "aliases": ["addr"],
                 "api": "GET /api/v3/address/<address>?page=N",
-                "data": "address, page, label|null, summary{confirmed_balance, unconfirmed_balance, confirmed_received, txs_received, txs_sent, txs_total}, transactions[{hash, block|null, time, value_received, value_sent, balance_change, price}]",
-                "notes": "10 transactions per page, newest first; block null means unconfirmed"
+                "data": "address, page, label|null, summary{confirmed_balance, unconfirmed_balance, confirmed_received, txs_received, txs_sent, txs_total}, transactions[{hash, block|null, time, value_received, value_sent, balance_change, price, p2pk?}]",
+                "notes": "10 transactions per page, newest first; block null means unconfirmed; p2pk: true (absent otherwise) means paid to the address's public key"
             },
             "labels <address>...": {
                 "api": "GET /api/v3/labels?a=<address>&a=...",
@@ -93,7 +93,7 @@ pub fn schema() -> Value {
             "richlist [--page N]": {
                 "aliases": ["top"],
                 "api": "GET /api/v3/richlist?page=N",
-                "data": "height, time, supply, page, total_rows, rows[{rank, address, balance, share_of_supply, tx_count, received, sent, first_seen{height,time}, last_seen, delta_24h|null, delta_7d|null, label|null}]",
+                "data": "height, time, supply, page, total_rows, rows[{rank, address, balance, share_of_supply, tx_count, received, sent, first_seen{height,time}, last_seen, delta_24h|null, delta_7d|null, label|null, p2pk?}]",
                 "notes": "100 rows per page, pages 1 to 10"
             },
             "chart <series> [--interval I] [--last N]": {
