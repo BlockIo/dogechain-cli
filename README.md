@@ -24,6 +24,12 @@ transactions.
 brew install blockio/tap/dogechain
 ```
 
+**npm (any platform with Node.js)**
+
+```sh
+npm install -g dogechain    # or run once with: npx dogechain
+```
+
 **macOS and Linux, without Homebrew**
 
 ```sh

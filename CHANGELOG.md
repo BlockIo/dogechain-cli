@@ -24,5 +24,5 @@ names, environment variables, exit codes, error codes, and the shape of
 - Address-poisoning warnings shown first on transactions, and as they happen
   in `watch`.
 - `watch --min` to show only transactions above an amount.
-- Installers: Homebrew (`blockio/tap/dogechain`), shell script, PowerShell,
+- Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
