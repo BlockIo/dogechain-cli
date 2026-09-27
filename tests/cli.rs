@@ -649,3 +649,33 @@ fn marks_coins_paid_to_a_public_key() {
             "{TXID}  (paid to a public key)\n"
         )));
 }
+
+#[test]
+fn handles_null_fields_the_api_allows() {
+    let labels = json!({ "labels": { ADDR: {
+        "address": ADDR, "label": null, "kind": "mining_pool", "source": null,
+        "evidence": null, "conflict": true } } });
+    dogechain(&mock(vec![ok(labels)]))
+        .args(["labels", ADDR])
+        .assert()
+        .success()
+        .stdout(format!("{ADDR}  conflicting pool labels (mining pool)\n"));
+
+    let fees = json!({
+        "fee_rate_koinu_per_byte": { "min": 1000.0, "median": null, "max": null },
+        "simple_payment": { "bytes": 226, "min_fee": "0.00226000" },
+        "median_fee_paid": null, "median_fee_paid_blocks": 100,
+        "mempool": { "txs": 0, "bytes": 0, "next_block_txs": null },
+        "price_usd": null
+    });
+    dogechain(&mock(vec![ok(fees)]))
+        .arg("fees")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "min 0.01, median unknown, max unknown.",
+        ))
+        .stdout(predicate::str::contains(
+            "0 transactions waiting in the mempool (0 bytes).\n",
+        ));
+}
