@@ -10,10 +10,14 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-27
+
 ### Added
 
 - `address` and `richlist` mark coins paid to an address's public key
   ("paid to a public key").
+- `transfers_sent` listed among the chart series in `chart --help` and
+  `schema`.
 
 ## [0.2.0] - 2026-09-27
 
@@ -71,7 +75,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.0...v0.1.1
