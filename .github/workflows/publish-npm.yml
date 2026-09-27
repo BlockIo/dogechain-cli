@@ -1,5 +1,7 @@
-# Publishes the npm package with npm trusted publishing (OIDC): no npm token
-# is stored anywhere, and npm adds provenance automatically.
+# Stages the npm package with npm trusted publishing (OIDC): no npm token is
+# stored anywhere. The trusted publishers are stage-only, so a staged version
+# goes live only when a maintainer approves it on npmjs.com with 2FA
+# (or `npm stage approve`).
 #
 # Runs in two ways, each registered as a trusted publisher on npmjs.com:
 # - release.yml calls it during a release (dist `publish-jobs`), passing the
@@ -47,13 +49,17 @@ jobs:
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" \
             --pattern '*-npm-package.tar.gz' --dir npm/
 
-      # Trusted publishing needs Node 22.14+ and npm 11.5.1+.
+      # Trusted publishing needs Node 22.14+ and npm 11.5.1+; staged
+      # publishing needs an npm that has `npm stage`, so use the latest.
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "24.x"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Publish
+      - name: Update npm
+        run: npm install --global npm@latest
+
+      - name: Stage for approval
         run: |
           npm --version
           shopt -s nullglob
@@ -63,5 +69,5 @@ jobs:
             exit 1
           fi
           for pkg in "${packages[@]}"; do
-            npm publish --access public "./$pkg"
+            npm stage publish --access public "./$pkg"
           done
