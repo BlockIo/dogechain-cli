@@ -132,6 +132,13 @@ pub fn schema() -> Value {
             "skill uninstall [--project | --dir DIR] [--force]": {
                 "data": { "targets": "[{agent, path, result: removed | not installed | skipped: …}]" }
             },
+            "mcp install [--project] [--print] [--force]": {
+                "does": "add the hosted Dogechain MCP server (https://dogechain.com/mcp, Streamable HTTP, no auth) to Claude Code and Codex using their own `mcp add` commands; --project uses Claude Code's project scope; --print shows setup for Claude Code, Codex, Cursor, VS Code, Gemini CLI, Claude.ai and ChatGPT without changing anything",
+                "data": { "server": "https://dogechain.com/mcp", "agents": "[{agent: claude | codex, result}]" },
+                "notes": "never replaces a server named dogechain that points elsewhere unless --force; exits 1 if any agent was skipped; exits 3 if neither agent is on PATH"
+            },
+            "mcp status": { "data": { "server": "https://dogechain.com/mcp", "agents": "[{agent, result}]" } },
+            "mcp uninstall [--project] [--force]": { "data": { "agents": "[{agent, result}]" } },
             "schema": { "does": "print this description" },
             "guide": { "does": "print the usage guide for scripts and AI agents" }
         }

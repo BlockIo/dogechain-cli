@@ -10,6 +10,19 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-09-27
+
+### Added
+
+- `dogechain mcp install`, `status` and `uninstall`: adds the hosted
+  Dogechain MCP server (`https://dogechain.com/mcp`) to Claude Code and Codex
+  through their own `mcp add` commands, for your user account or, with
+  `--project`, the current project (Claude Code). An existing server named
+  `dogechain` that points elsewhere is kept unless `--force`.
+- `dogechain mcp install --print` shows the setup for Claude Code, Codex,
+  Cursor, VS Code, Gemini CLI, Claude.ai and ChatGPT without changing
+  anything.
+
 ## [0.4.0] - 2026-09-27
 
 ### Added
@@ -95,7 +108,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.2.0...v0.3.0

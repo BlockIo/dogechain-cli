@@ -52,6 +52,10 @@ the stream starts by resending the current state.
 Codex (`--project` for the current project only). `dogechain skill status`
 shows whether it is current.
 
+`dogechain mcp install` adds the Dogechain MCP server
+(`https://dogechain.com/mcp`) to Claude Code and Codex; `--print` shows the
+setup for other apps.
+
 ## Safety
 
 `tx` replies can carry `warnings`. A `lookalike_sender` warning means a
