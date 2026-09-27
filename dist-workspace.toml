@@ -14,7 +14,9 @@ tap = "BlockIo/homebrew-tap"
 # Formula name, so users run `brew install blockio/tap/dogechain`
 formula = "dogechain"
 # Publish jobs to run in CI
-publish-jobs = ["homebrew", "npm"]
+# npm publishes via our own trusted-publishing workflow (publish-npm.yml)
+# instead of dist's token-based job.
+publish-jobs = ["homebrew", "./publish-npm"]
 # npm package name, so users run `npm install -g dogechain` or `npx dogechain`
 npm-package = "dogechain"
 # Target platforms to build apps for (Rust target-triple syntax)
@@ -23,6 +25,8 @@ targets = ["aarch64-apple-darwin", "aarch64-unknown-linux-gnu", "x86_64-apple-da
 install-path = "CARGO_HOME"
 # Whether to install an updater program
 install-updater = false
+# The custom npm job needs an OIDC token for npm trusted publishing
+github-custom-job-permissions = { "publish-npm" = { contents = "read", id-token = "write" } }
 # Sign release artifacts with GitHub build provenance attestations
 github-attestations = true
 

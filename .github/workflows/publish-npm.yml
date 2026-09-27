@@ -1,0 +1,67 @@
+# Publishes the npm package with npm trusted publishing (OIDC): no npm token
+# is stored anywhere, and npm adds provenance automatically.
+#
+# Runs in two ways, each registered as a trusted publisher on npmjs.com:
+# - release.yml calls it during a release (dist `publish-jobs`), passing the
+#   dist plan; npm sees the caller, release.yml.
+# - Run it by hand (workflow_dispatch) to publish an existing GitHub release,
+#   e.g. to retry a failed publish; npm sees publish-npm.yml.
+name: Publish npm
+
+on:
+  workflow_call:
+    inputs:
+      plan:
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to publish, e.g. v0.1.1
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Fetch the npm package from this run
+        if: ${{ inputs.plan != '' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          pattern: artifacts-*
+          path: npm/
+          merge-multiple: true
+
+      - name: Fetch the npm package from the GitHub release
+        if: ${{ inputs.plan == '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern '*-npm-package.tar.gz' --dir npm/
+
+      # Trusted publishing needs Node 22.14+ and npm 11.5.1+.
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24.x"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish
+        run: |
+          npm --version
+          shopt -s nullglob
+          packages=(npm/*-npm-package.tar.gz)
+          if [ ${#packages[@]} -eq 0 ]; then
+            echo "no npm package found" >&2
+            exit 1
+          fi
+          for pkg in "${packages[@]}"; do
+            npm publish --access public "./$pkg"
+          done
