@@ -340,11 +340,13 @@ fn show_address(out: &mut dyn Write, r: &AddressReply) -> Result<()> {
 fn show_labels(out: &mut dyn Write, asked: &[String], r: &LabelsReply) -> Result<()> {
     for a in asked {
         match r.labels.get(a) {
-            Some(Label {
-                label,
-                kind: Some(kind),
-            }) => writeln!(out, "{a}  {label} ({})", kind.replace('_', " "))?,
-            Some(Label { label, kind: None }) => writeln!(out, "{a}  {label}")?,
+            Some(Label { label, kind }) => {
+                let name = label.as_deref().unwrap_or(CONFLICTING_LABELS);
+                match kind {
+                    Some(kind) => writeln!(out, "{a}  {name} ({})", kind.replace('_', " "))?,
+                    None => writeln!(out, "{a}  {name}")?,
+                }
+            }
             None => writeln!(out, "{a}  no label")?,
         }
     }
@@ -411,15 +413,19 @@ fn show_fees(out: &mut dyn Write, r: &FeesReply) -> Result<()> {
         out,
         "Next-block fee rates in DOGE per kB: min {}, median {}, max {}.",
         doge_per_kb(f.min),
-        doge_per_kb(f.median),
-        doge_per_kb(f.max)
+        f.median.map(doge_per_kb).as_deref().unwrap_or("unknown"),
+        f.max.map(doge_per_kb).as_deref().unwrap_or("unknown")
     )?;
+    let next = r
+        .mempool
+        .next_block_txs
+        .map(|n| format!("; the next block takes about {}", group_thousands(n.into())))
+        .unwrap_or_default();
     writeln!(
         out,
-        "{} waiting in the mempool ({} bytes); the next block takes about {}.",
+        "{} waiting in the mempool ({} bytes){next}.",
         plural(r.mempool.txs, "transaction"),
         group_thousands(r.mempool.bytes.into()),
-        group_thousands(r.mempool.next_block_txs.into())
     )?;
     Ok(())
 }

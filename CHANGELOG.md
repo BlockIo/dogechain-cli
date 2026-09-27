@@ -10,6 +10,15 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-09-27
+
+### Fixed
+
+- `labels`, `address` and `richlist` no longer fail on an address whose pool
+  labels conflict; it shows as "conflicting pool labels".
+- `fees` no longer fails when the median or maximum fee rate, or the
+  next-block estimate, is unavailable.
+
 ## [0.3.0] - 2026-09-27
 
 ### Added
@@ -75,7 +84,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.1...v0.1.2

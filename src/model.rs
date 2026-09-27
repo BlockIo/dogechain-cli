@@ -1,5 +1,8 @@
 //! Response types for the /api/v3 endpoints the CLI renders as text.
 //!
+//! scripts/check-api-contract.py checks the non-Option fields here against
+//! the API's OpenAPI spec; update its list when they change.
+//!
 //! Only the fields the text output uses are declared; unknown fields are
 //! ignored, so the API can add fields without breaking the CLI. `--json`
 //! output does not go through these types at all: it is the API's own reply.
@@ -124,9 +127,13 @@ pub struct AddressTx {
 
 #[derive(Debug, Deserialize)]
 pub struct Label {
-    pub label: String,
+    /// None when mining pools' tags for the address conflict.
+    pub label: Option<String>,
     pub kind: Option<String>,
 }
+
+/// Shown when the API has a label entry but no single name for it.
+pub const CONFLICTING_LABELS: &str = "conflicting pool labels";
 
 /// A label given either as plain text or as a full label object.
 #[derive(Debug, Deserialize)]
@@ -140,7 +147,7 @@ impl LabelField {
     pub fn text(&self) -> &str {
         match self {
             LabelField::Text(s) => s,
-            LabelField::Full(l) => &l.label,
+            LabelField::Full(l) => l.label.as_deref().unwrap_or(CONFLICTING_LABELS),
         }
     }
 }
@@ -192,8 +199,9 @@ pub struct FeesReply {
 #[derive(Debug, Deserialize)]
 pub struct FeeRates {
     pub min: f64,
-    pub median: f64,
-    pub max: f64,
+    /// None when there is too little data, e.g. an empty mempool.
+    pub median: Option<f64>,
+    pub max: Option<f64>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -206,7 +214,7 @@ pub struct SimplePayment {
 pub struct FeesMempool {
     pub txs: u64,
     pub bytes: u64,
-    pub next_block_txs: u64,
+    pub next_block_txs: Option<u64>,
 }
 
 #[derive(Debug, Deserialize)]
