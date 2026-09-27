@@ -1,13 +1,4 @@
-# Stages the npm package with npm trusted publishing (OIDC): no npm token is
-# stored anywhere. The trusted publishers are stage-only, so a staged version
-# goes live only when a maintainer approves it on npmjs.com with 2FA
-# (or `npm stage approve`).
-#
-# Runs in two ways, each registered as a trusted publisher on npmjs.com:
-# - release.yml calls it during a release (dist `publish-jobs`), passing the
-#   dist plan; npm sees the caller, release.yml.
-# - Run it by hand (workflow_dispatch) to publish an existing GitHub release,
-#   e.g. to retry a failed publish; npm sees publish-npm.yml.
+# Publishes the npm package. Called by release.yml, or run by hand for a tag.
 name: Publish npm
 
 on:
@@ -49,8 +40,6 @@ jobs:
           gh release download "$TAG" --repo "$GITHUB_REPOSITORY" \
             --pattern '*-npm-package.tar.gz' --dir npm/
 
-      # Trusted publishing needs Node 22.14+ and npm 11.5.1+; staged
-      # publishing needs an npm that has `npm stage`, so use the latest.
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: "24.x"
@@ -59,7 +48,7 @@ jobs:
       - name: Update npm
         run: npm install --global npm@latest
 
-      - name: Stage for approval
+      - name: Publish
         run: |
           npm --version
           shopt -s nullglob

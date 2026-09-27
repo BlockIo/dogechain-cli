@@ -126,16 +126,8 @@ in debug builds.
 
 ### Releasing
 
-1. Update the version in `Cargo.toml` and move the `Unreleased` changelog
-   entries under the new version.
-2. Commit, then tag and push: `git tag v0.1.0 && git push origin v0.1.0`.
-3. The release workflow builds every platform, publishes a GitHub release
-   with installers and build attestations, updates the Homebrew tap, and
-   stages the npm package through npm trusted publishing (no npm token).
-4. Approve the staged npm version on npmjs.com (package → Settings, with
-   2FA), or with `npm stage approve`. It is not public until approved.
-5. If the npm step fails, rerun it for the tag with the "Publish npm"
-   workflow (Actions → Publish npm → Run workflow).
+Maintainers release by pushing a version tag; see [CHANGELOG.md](CHANGELOG.md)
+for what each release contains.
 
 ## License
 
