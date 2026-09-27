@@ -10,6 +10,8 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-27
+
 ### Added
 
 - First release of `dogechain`, reading the Dogechain.com JSON API (/api/v3).
@@ -26,3 +28,6 @@ names, environment variables, exit codes, error codes, and the shape of
 - `watch --min` to show only transactions above an amount.
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
+
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/BlockIo/dogechain-cli/releases/tag/v0.1.0

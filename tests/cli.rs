@@ -554,3 +554,19 @@ fn watch_min_rejects_non_amounts() {
         .assert()
         .code(2);
 }
+
+#[test]
+fn non_api_replies_count_as_unavailable() {
+    for status in [200, 404] {
+        let page = Reply {
+            status,
+            headers: vec![],
+            body: "<html>coming soon</html>".into(),
+        };
+        dogechain(&mock(vec![page]))
+            .arg("network")
+            .assert()
+            .code(4)
+            .stderr(predicate::str::contains("did not return API data"));
+    }
+}

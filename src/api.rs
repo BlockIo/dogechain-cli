@@ -69,30 +69,36 @@ impl Api {
             .and_then(|b| b["data"]["error_message"].as_str())
             .map(str::to_owned);
 
-        match (status, &body) {
-            (s, Some(b)) if s.is_success() && b["status"] == "success" => Ok(body.unwrap()),
-            (s, _) if s.is_success() => {
+        let Some(body) = body else {
+            // Something answered, but not the API: e.g. a web page or proxy
+            // error in front of it.
+            return Err(CliError::Unavailable(format!(
+                "dogechain.com did not return API data (HTTP {}); try again later",
+                status.as_u16()
+            )));
+        };
+        match status {
+            s if s.is_success() && body["status"] == "success" => Ok(body),
+            s if s.is_success() => {
                 Err(CliError::Other(message.unwrap_or_else(|| {
                     "unexpected response from dogechain.com".into()
                 })))
             }
-            (StatusCode::BAD_REQUEST, _) => {
+            StatusCode::BAD_REQUEST => {
                 Err(CliError::BadInput(message.unwrap_or_else(|| {
                     "dogechain.com rejected the request".into()
                 })))
             }
-            (StatusCode::NOT_FOUND, _) => Err(CliError::NotFound(
+            StatusCode::NOT_FOUND => Err(CliError::NotFound(
                 message.unwrap_or_else(|| "not found".into()),
             )),
-            (s, _) if is_unavailable(s) => {
-                Err(CliError::Unavailable(message.unwrap_or_else(|| {
-                    format!(
-                        "dogechain.com is unavailable right now (HTTP {})",
-                        s.as_u16()
-                    )
-                })))
-            }
-            (s, _) => Err(CliError::Other(message.unwrap_or_else(|| {
+            s if is_unavailable(s) => Err(CliError::Unavailable(message.unwrap_or_else(|| {
+                format!(
+                    "dogechain.com is unavailable right now (HTTP {})",
+                    s.as_u16()
+                )
+            }))),
+            s => Err(CliError::Other(message.unwrap_or_else(|| {
                 format!("dogechain.com returned HTTP {}", s.as_u16())
             }))),
         }
