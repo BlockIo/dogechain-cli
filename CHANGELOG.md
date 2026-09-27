@@ -10,6 +10,12 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-09-27
+
+### Changed
+
+- Packaging updates. No changes to the `dogechain` command.
+
 ## [0.1.1] - 2026-09-27
 
 ### Security
@@ -41,6 +47,7 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/BlockIo/dogechain-cli/releases/tag/v0.1.0
