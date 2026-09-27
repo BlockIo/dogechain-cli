@@ -116,6 +116,10 @@ pub struct AddressTx {
     pub block: Option<u64>,
     pub time: i64,
     pub balance_change: Doge,
+    /// The coins were paid to the address's public key (P2PK), not to the
+    /// address itself. The API sends it only when true.
+    #[serde(default)]
+    pub p2pk: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -230,6 +234,9 @@ pub struct RichRow {
     pub balance: Doge,
     pub share_of_supply: f64,
     pub label: Option<LabelField>,
+    /// Sent only when true; see `AddressTx::p2pk`.
+    #[serde(default)]
+    pub p2pk: bool,
 }
 
 #[derive(Debug, Deserialize)]

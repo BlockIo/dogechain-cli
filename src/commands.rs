@@ -314,9 +314,14 @@ fn show_address(out: &mut dyn Write, r: &AddressReply) -> Result<()> {
         } else {
             "+"
         };
+        let p2pk = if h.p2pk {
+            "  (paid to a public key)"
+        } else {
+            ""
+        };
         writeln!(
             out,
-            "  {sign}{} DOGE  {when}  {}",
+            "  {sign}{} DOGE  {when}  {}{p2pk}",
             h.balance_change.abs(),
             h.hash
         )?;
@@ -452,9 +457,14 @@ fn show_richlist(out: &mut dyn Write, r: &RichlistReply) -> Result<()> {
             .as_ref()
             .map(|l| format!("  {}", l.text()))
             .unwrap_or_default();
+        let p2pk = if row.p2pk {
+            "  (paid to a public key)"
+        } else {
+            ""
+        };
         writeln!(
             out,
-            "{:>5}  {who}  {} DOGE  {:.4}%{label}",
+            "{:>5}  {who}  {} DOGE  {:.4}%{label}{p2pk}",
             row.rank,
             row.balance.display(0),
             row.share_of_supply * 100.0
