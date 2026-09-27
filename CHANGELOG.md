@@ -10,6 +10,25 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-27
+
+### Added
+
+- `chart --last N`: text output shows the most recent 30 points by default
+  (`--last 0` for all). `--json` still returns every point.
+
+### Fixed
+
+- `chart` printed no dates for daily, hourly and per-minute series, and failed
+  for `pool_share`, `transfers` and `holder_share`.
+
+### Changed
+
+- Hashrate is shown with units (e.g. `2.84 PH/s`) and difficulty with
+  thousands separators.
+- `holder_share` is shown as percentages, and `transfers` as a count and DOGE
+  amount per size bucket.
+
 ## [0.1.2] - 2026-09-27
 
 ### Changed
@@ -47,7 +66,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/BlockIo/dogechain-cli/releases/tag/v0.1.0

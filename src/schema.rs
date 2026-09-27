@@ -96,7 +96,7 @@ pub fn schema() -> Value {
                 "data": "height, time, supply, page, total_rows, rows[{rank, address, balance, share_of_supply, tx_count, received, sent, first_seen{height,time}, last_seen, delta_24h|null, delta_7d|null, label|null}]",
                 "notes": "100 rows per page, pages 1 to 10"
             },
-            "chart <series> [--interval I]": {
+            "chart <series> [--interval I] [--last N]": {
                 "api": "GET /api/v3/chart/<series>?interval=I",
                 "series": {
                     "numbers": ["tx_count", "tx_per_min", "block_size", "block_interval", "fees_median", "fees_total", "hashrate", "difficulty", "supply", "price_usd", "active_addresses", "new_addresses", "lookalikes", "lookalike_senders"],
@@ -104,7 +104,7 @@ pub fn schema() -> Value {
                 },
                 "intervals": ["minute", "hour", "day", "block", "week", "month"],
                 "data": "series, interval, points[{t, label, v}]; v is a number, an object (for the object series) or null",
-                "notes": "default interval day; minute only for tx_per_min; object series take day (some also hour); other series may be added"
+                "notes": "default interval day; --last limits text output to the most recent N points (default 30, 0 for all) and does not affect --json; point labels may be empty, so use t; minute only for tx_per_min; object series take day (some also hour); other series may be added"
             },
             "watch [blocks|mempool|txs|all] [--min DOGE]": {
                 "api": "GET /api/v3/live (server-sent events)",

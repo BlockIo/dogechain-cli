@@ -23,6 +23,17 @@ pub fn utc(ts: i64) -> String {
     )
 }
 
+/// `2026-09-26`
+pub fn utc_date(ts: i64) -> String {
+    utc(ts)[..10].to_owned()
+}
+
+/// `2026-09-26 14:03 UTC`
+pub fn utc_minute(ts: i64) -> String {
+    let full = utc(ts);
+    format!("{} UTC", &full[..16])
+}
+
 /// `3 minutes ago`; `just now` if the clock is behind the timestamp.
 pub fn ago(ts: i64, now: i64) -> String {
     let d = now - ts;
@@ -65,6 +76,12 @@ mod tests {
         // Dogecoin genesis block.
         assert_eq!(utc(1_386_325_540), "2013-12-06 10:25:40 UTC");
         assert_eq!(utc(951_782_400), "2000-02-29 00:00:00 UTC");
+    }
+
+    #[test]
+    fn formats_dates_and_minutes() {
+        assert_eq!(utc_date(1_790_380_800), "2026-09-26");
+        assert_eq!(utc_minute(1_790_481_600), "2026-09-27 04:00 UTC");
     }
 
     #[test]
