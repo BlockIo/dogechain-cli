@@ -10,6 +10,14 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-09-27
+
+### Changed
+
+- `watch` now says that a new transaction's amount is the total of its
+  outputs, including change, rather than suggesting it is the amount paid.
+  `watch --min` help says the same.
+
 ## [0.5.0] - 2026-09-27
 
 ### Added
@@ -108,7 +116,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.3.0...v0.3.1

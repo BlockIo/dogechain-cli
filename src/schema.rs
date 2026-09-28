@@ -118,7 +118,7 @@ pub fn schema() -> Value {
                     "lookalike": "txid, sender, imitates",
                     "richlist": "height, addresses[] (top-1,000 entries changed by this block)"
                 },
-                "notes": "blocks=tip, mempool=mempool, txs=tx, all=every event; the current state is sent first; --min keeps tx events with value_out at least DOGE; exits 4 when the stream drops, so rerun to reconnect"
+                "notes": "blocks=tip, mempool=mempool, txs=tx, all=every event; the current state is sent first; --min keeps tx events with value_out at least DOGE (value_out totals all outputs, including change; for the amount actually paid use `tx <txid>`, data.explain.sent); on connect the stream first sends the current tip, mempool and price, and recent tx events; exits 4 when the stream drops, so rerun to reconnect"
             },
             "skill install [--project | --dir DIR] [--print] [--force]": {
                 "does": "download the Dogechain agent skill (SKILL.md) from dogechain.com, verify its published sha256 digest, and install it for each agent found: ~/.claude/skills/dogechain (Claude Code), ~/.agents/skills/dogechain (Codex); --project uses .claude/skills and .agents/skills in the current directory; --print only prints it",

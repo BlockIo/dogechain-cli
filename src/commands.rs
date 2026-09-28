@@ -644,9 +644,11 @@ fn describe_event(event: &str, d: &Value) -> String {
         }),
         "price" => d["usd"].as_f64().map(|p| format!("Price ${p:.4}")),
         "tx" => text("txid").map(|txid| {
+            // value_out totals every output, including the sender's change, so
+            // it is not the amount paid; `dogechain tx` has that.
             let value = doge("value_out")
-                .map(|v| format!("{} DOGE", v.display(2)))
-                .unwrap_or_else(|| "New transaction".into());
+                .map(|v| format!(": {} DOGE in outputs, including change,", v.display(2)))
+                .unwrap_or_default();
             let from = text("from_address").unwrap_or_else(|| "(no address)".into());
             let to = text("to_address").unwrap_or_else(|| "(no address)".into());
             let more = match num("n_out") {
@@ -656,7 +658,7 @@ fn describe_event(event: &str, d: &Value) -> String {
                 }
                 _ => String::new(),
             };
-            format!("{value} from {from} to {to}{more} · {txid}")
+            format!("New transaction{value} from {from} to {to}{more} · {txid}")
         }),
         "tx_gone" => text("txid").map(|txid| match text("reason").as_deref() {
             Some("mined") => format!("Confirmed in a block {txid}"),
@@ -839,7 +841,7 @@ mod tests {
                 &json!({"txid": "t", "value_out": "16106.82459707", "from_address": "A",
                         "to_address": null, "n_out": 3})
             ),
-            "16,106.82 DOGE from A to (no address) and 2 more outputs · t"
+            "New transaction: 16,106.82 DOGE in outputs, including change, from A to (no address) and 2 more outputs · t"
         );
         assert_eq!(
             describe_event("richlist", &json!({"height": 7, "addresses": ["a", "b"]})),
