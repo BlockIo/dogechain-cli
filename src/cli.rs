@@ -149,7 +149,8 @@ pub enum Command {
         #[arg(value_enum, default_value_t = WatchWhat::Blocks)]
         what: WatchWhat,
 
-        /// Only transactions moving at least this many DOGE (for `txs` and `all`)
+        /// Only transactions whose outputs total at least this many DOGE,
+        /// including the sender's change (for `txs` and `all`)
         #[arg(long, value_name = "DOGE", value_parser = parse_doge)]
         min: Option<Doge>,
     },

@@ -542,7 +542,7 @@ fn watch_min_filters_small_transactions() {
         .assert()
         .code(4)
         .stdout(format!(
-            "250,000 DOGE from {ADDR} to {LOOKALIKE} and 1 more output · {TXID}\n"
+            "New transaction: 250,000 DOGE in outputs, including change, from {ADDR} to {LOOKALIKE} and 1 more output · {TXID}\n"
         ));
 }
 
