@@ -1004,3 +1004,27 @@ fn mcp_print_changes_nothing() {
         "codex mcp add dogechain --url https://dogechain.com/mcp"
     );
 }
+
+#[test]
+fn shows_dollar_values_at_the_time() {
+    let mut priced = tx(json!([]));
+    priced["transaction"]["price"] = json!({ "currency": "USD", "value": "0.00156501" });
+    dogechain(&mock(vec![ok(priced)]))
+        .args(["tx", TXID])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Worth about $0.09 at the time (1 DOGE = $0.001565)",
+        ))
+        .stdout(predicate::str::contains("Fee 0.01 DOGE (<$0.01)"));
+
+    let mut b = block();
+    b["price"] = json!({ "currency": "USD", "value": "0.09387710" });
+    dogechain(&mock(vec![ok(b)]))
+        .args(["block", "latest"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Price then $0.0939 per DOGE · reward worth about $938.77",
+        ));
+}

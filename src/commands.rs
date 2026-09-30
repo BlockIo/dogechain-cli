@@ -216,6 +216,14 @@ fn show_block(out: &mut dyn Write, b: &Block) -> Result<()> {
         b.fees,
         b.value_out.display(2)
     )?;
+    if let Some(p) = b.price.as_ref().and_then(Price::usd) {
+        writeln!(
+            out,
+            "Price then {} per DOGE · reward worth about {}",
+            format_usd_price(p),
+            format_usd(doge_to_f64(b.reward) * p)
+        )?;
+    }
     writeln!(
         out,
         "Confirmations {}",
@@ -260,6 +268,17 @@ fn show_tx(out: &mut dyn Write, r: &TxReply, explain_only: bool) -> Result<()> {
     }
     writeln!(out, "{}", r.explain.headline)?;
     writeln!(out, "{}", r.explain.detail)?;
+    let usd = r.transaction.price.as_ref().and_then(Price::usd);
+    if let (Some(sent), Some(p)) = (r.explain.sent, usd)
+        && sent.0 > 0
+    {
+        writeln!(
+            out,
+            "Worth about {} at the time (1 DOGE = {})",
+            format_usd(doge_to_f64(sent) * p),
+            format_usd_price(p)
+        )?;
+    }
     if explain_only {
         return Ok(());
     }
@@ -293,8 +312,11 @@ fn show_tx(out: &mut dyn Write, r: &TxReply, explain_only: bool) -> Result<()> {
     }
     writeln!(
         out,
-        "Fee {} DOGE · {} bytes",
+        "Fee {} DOGE{} · {} bytes",
         tx.fee,
+        usd.filter(|_| tx.fee.0 > 0)
+            .map(|p| format!(" ({})", format_usd(doge_to_f64(tx.fee) * p)))
+            .unwrap_or_default(),
         group_thousands(tx.size.into())
     )?;
     writeln!(out, "Transaction id {}", tx.hash)?;
@@ -362,9 +384,15 @@ fn show_address(out: &mut dyn Write, r: &AddressReply) -> Result<()> {
         } else {
             ""
         };
+        let worth = h
+            .price
+            .as_ref()
+            .and_then(Price::usd)
+            .map(|p| format!(" ({})", format_usd(doge_to_f64(h.balance_change.abs()) * p)))
+            .unwrap_or_default();
         writeln!(
             out,
-            "  {sign}{} DOGE  {when}  {}{p2pk}",
+            "  {sign}{} DOGE{worth}  {when}  {}{p2pk}",
             h.balance_change.abs(),
             h.hash
         )?;
@@ -764,6 +792,33 @@ fn plural(n: u64, noun: &str) -> String {
     )
 }
 
+fn doge_to_f64(d: Doge) -> f64 {
+    d.0 as f64 / KOINU_PER_DOGE
+}
+
+/// A dollar amount: `$0.52`, `$1,234.56`, `$33,100`; `<$0.01` for dust.
+fn format_usd(v: f64) -> String {
+    if v > 0.0 && v < 0.01 {
+        "<$0.01".into()
+    } else if v < 10_000.0 {
+        let cents = (v * 100.0).round() as i128;
+        format!("${}.{:02}", group_thousands(cents / 100), cents % 100)
+    } else {
+        format!("${}", group_thousands(v.round() as i128))
+    }
+}
+
+/// The price of 1 DOGE with enough digits to be meaningful: `$0.0939`, and
+/// for early prices four significant digits, e.g. `$0.001565`.
+fn format_usd_price(p: f64) -> String {
+    if p >= 0.01 || p <= 0.0 {
+        return format!("${p:.4}");
+    }
+    let decimals = (4 - p.log10().floor() as i32 - 1).clamp(4, 10) as usize;
+    let s = format!("{p:.decimals$}");
+    format!("${}", s.trim_end_matches('0'))
+}
+
 /// Koinu per byte to DOGE per kB (1,000 bytes), the unit wallets show.
 fn doge_per_kb(koinu_per_byte: f64) -> String {
     let doge = koinu_per_byte * 1000.0 / KOINU_PER_DOGE;
@@ -784,6 +839,18 @@ fn format_number(v: f64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn formats_dollars() {
+        assert_eq!(format_usd(33_100.4), "$33,100");
+        assert_eq!(format_usd(1234.567), "$1,234.57");
+        assert_eq!(format_usd(0.52), "$0.52");
+        assert_eq!(format_usd(0.001), "<$0.01");
+        assert_eq!(format_usd(0.0), "$0.00");
+        assert_eq!(format_usd_price(0.0938771), "$0.0939");
+        assert_eq!(format_usd_price(0.00156501), "$0.001565");
+        assert_eq!(format_usd_price(0.000183), "$0.000183");
+    }
 
     #[test]
     fn formats_hashrate_and_difficulty() {
