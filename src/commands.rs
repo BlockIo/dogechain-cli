@@ -663,6 +663,9 @@ fn describe_event(event: &str, d: &Value) -> String {
         "tx_gone" => text("txid").map(|txid| match text("reason").as_deref() {
             Some("mined") => format!("Confirmed in a block {txid}"),
             Some("dropped") => format!("Dropped from the mempool {txid}"),
+            Some("replaced") => format!(
+                "Replaced by another transaction spending the same coins (a fee bump or double-spend) {txid}"
+            ),
             _ => format!("Left the mempool {txid}"),
         }),
         "lookalike" => match (text("sender"), text("imitates")) {
@@ -842,6 +845,14 @@ mod tests {
                         "to_address": null, "n_out": 3})
             ),
             "New transaction: 16,106.82 DOGE in outputs, including change, from A to (no address) and 2 more outputs · t"
+        );
+        assert_eq!(
+            describe_event("tx_gone", &json!({"txid": "t", "reason": "replaced"})),
+            "Replaced by another transaction spending the same coins (a fee bump or double-spend) t"
+        );
+        assert_eq!(
+            describe_event("tx_gone", &json!({"txid": "t", "reason": "something new"})),
+            "Left the mempool t"
         );
         assert_eq!(
             describe_event("richlist", &json!({"height": 7, "addresses": ["a", "b"]})),
