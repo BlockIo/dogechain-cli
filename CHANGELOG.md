@@ -10,6 +10,15 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-29
+
+### Added
+
+- Dollar values at the time, back to December 2013: `tx` shows what the
+  amount sent and the fee were worth, `block` the DOGE price and what the
+  reward was worth, and `address` each history entry's value. `--json` is
+  unchanged.
+
 ## [0.5.2] - 2026-09-29
 
 ### Changed
@@ -123,7 +132,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.2...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.2...v0.6.0
 [0.5.2]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.4.0...v0.5.0

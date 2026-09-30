@@ -13,6 +13,28 @@ use serde::Deserialize;
 
 use crate::amount::Doge;
 
+/// The DOGE price when a block was mined (or, for unconfirmed transactions,
+/// now). `value` is the price of 1 DOGE, as a decimal string.
+#[derive(Debug, Clone, Deserialize)]
+pub struct Price {
+    pub value: String,
+    pub currency: String,
+}
+
+impl Price {
+    /// USD per DOGE, if this is a USD price.
+    pub fn usd(&self) -> Option<f64> {
+        if self.currency != "USD" {
+            return None;
+        }
+        self.value
+            .trim()
+            .parse()
+            .ok()
+            .filter(|p: &f64| p.is_finite() && *p >= 0.0)
+    }
+}
+
 #[derive(Debug, Deserialize)]
 pub struct Block {
     pub height: u64,
@@ -29,6 +51,8 @@ pub struct Block {
     pub difficulty: String,
     pub previous_block_hash: Option<String>,
     pub next_block_hash: Option<String>,
+    #[serde(default)]
+    pub price: Option<Price>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -63,6 +87,8 @@ pub struct Transaction {
     pub size: u64,
     pub inputs: Vec<Input>,
     pub outputs: Vec<Output>,
+    #[serde(default)]
+    pub price: Option<Price>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -83,6 +109,9 @@ pub struct Output {
 pub struct Explain {
     pub headline: String,
     pub detail: String,
+    /// What the sender paid out, excluding change and fee.
+    #[serde(default)]
+    pub sent: Option<Doge>,
     #[serde(default)]
     pub change_outputs: Vec<u32>,
 }
@@ -119,6 +148,8 @@ pub struct AddressTx {
     pub block: Option<u64>,
     pub time: i64,
     pub balance_change: Doge,
+    #[serde(default)]
+    pub price: Option<Price>,
     /// The coins were paid to the address's public key (P2PK), not to the
     /// address itself. The API sends it only when true.
     #[serde(default)]
