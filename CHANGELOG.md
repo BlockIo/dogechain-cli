@@ -10,6 +10,13 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-09-29
+
+### Changed
+
+- `watch` says when a mempool transaction was replaced by another spending
+  the same coins (a fee bump or double-spend), instead of "Left the mempool".
+
 ## [0.5.1] - 2026-09-27
 
 ### Changed
@@ -116,7 +123,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.3.1...v0.4.0

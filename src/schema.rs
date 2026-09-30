@@ -114,7 +114,7 @@ pub fn schema() -> Value {
                     "mempool": "txs, bytes, min_fee_rate, median_fee_rate, max_fee_rate (koinu per byte), next_block_txs",
                     "price": "usd",
                     "tx": "txid, value_out, fee, size, n_in, n_out, from_address|null (first input), to_address|null (first output), time_seen",
-                    "tx_gone": "txid, reason (mined | dropped)",
+                    "tx_gone": "txid, reason (mined | dropped | replaced; replaced means a fee bump or double-spend took its place; other values may be added)",
                     "lookalike": "txid, sender, imitates",
                     "richlist": "height, addresses[] (top-1,000 entries changed by this block)"
                 },
