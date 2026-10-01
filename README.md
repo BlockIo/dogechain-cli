@@ -140,6 +140,10 @@ in debug builds.
 Maintainers release by pushing a version tag; see [CHANGELOG.md](CHANGELOG.md)
 for what each release contains.
 
+## Data
+
+Data comes from Dogechain.com and is subject to its [Terms of Service](https://dogechain.com/terms).
+
 ## License
 
 [MIT](LICENSE)

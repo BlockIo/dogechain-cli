@@ -22,7 +22,8 @@ use clap::{ArgAction, Parser, Subcommand, ValueEnum};
         dogechain tx <txid> --explain\n  \
         dogechain address <address> --json\n  \
         dogechain watch txs --min 100000\n\n\
-        Run `dogechain guide` for a guide aimed at scripts and AI agents."
+        Run `dogechain guide` for a guide aimed at scripts and AI agents.\n\n\
+        Data comes from Dogechain.com and is subject to its Terms of Service: https://dogechain.com/terms"
 )]
 pub struct Cli {
     /// Print the API's JSON reply instead of text (errors as JSON on stderr)
