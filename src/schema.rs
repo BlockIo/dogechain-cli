@@ -8,6 +8,7 @@ pub fn schema() -> Value {
         "name": "dogechain",
         "version": env!("CARGO_PKG_VERSION"),
         "api": "https://dogechain.com/api/v3",
+        "terms_of_service": "https://dogechain.com/terms",
         "output": {
             "text": "plain English on stdout (default)",
             "json": "--json or DOGECHAIN_JSON=1: the API's reply, unchanged, on stdout",

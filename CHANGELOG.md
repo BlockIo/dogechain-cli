@@ -10,6 +10,13 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-10-01
+
+### Changed
+
+- `dogechain --help`, the README and `schema` link Dogechain.com's Terms of
+  Service, which govern the data the CLI shows.
+
 ## [0.6.0] - 2026-09-29
 
 ### Added
@@ -132,7 +139,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.2...v0.6.0
 [0.5.2]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.0...v0.5.1
