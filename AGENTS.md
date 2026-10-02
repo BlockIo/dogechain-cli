@@ -65,7 +65,9 @@ website or API.
 `tx` replies can carry `warnings`. A `lookalike_sender` warning means a
 transaction likely comes from an address made to look like one the receiver
 really uses (address poisoning). Surface it to the user, and never suggest
-copying an address from transaction history.
+copying an address from transaction history. https://dogechain.com/guides/copycat
+explains the trick; https://dogechain.com/guides/track-a-payment helps with
+"where is my payment?".
 
 ## Limits
 

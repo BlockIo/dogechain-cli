@@ -10,6 +10,13 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-10-02
+
+### Changed
+
+- The address-poisoning warning in `tx` links to Dogechain.com's guide on the
+  copycat trick.
+
 ## [0.7.0] - 2026-10-02
 
 ### Added
@@ -152,7 +159,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.2...v0.6.0

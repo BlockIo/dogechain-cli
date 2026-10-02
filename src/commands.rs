@@ -22,6 +22,7 @@ use crate::time::{ago, now, utc, utc_date, utc_minute};
 
 const KOINU_PER_DOGE: f64 = 100_000_000.0;
 const ADDRESS_PAGE_SIZE: u64 = 10;
+const COPYCAT_GUIDE: &str = "https://dogechain.com/guides/copycat";
 const RICHLIST_PAGE_SIZE: u64 = 100;
 
 pub fn run(cli: Cli, out: &mut dyn Write) -> Result<()> {
@@ -352,7 +353,8 @@ fn show_warning(out: &mut dyn Write, w: &Warning) -> Result<()> {
             writeln!(
                 out,
                 "WARNING: likely address poisoning. The sender {sender} imitates {imitates}, \
-                 an address{victim}. Never copy an address from transaction history."
+                 an address{victim}. Never copy an address from transaction history. \
+                 How the trick works: {COPYCAT_GUIDE}"
             )?;
         }
         (kind, _, _) => writeln!(out, "WARNING: {kind}")?,

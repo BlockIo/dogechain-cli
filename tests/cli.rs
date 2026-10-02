@@ -313,6 +313,7 @@ fn tx_shows_poisoning_warning_first() {
         "{text}"
     );
     assert!(text.contains(&format!("The sender {LOOKALIKE} imitates {ADDR}")));
+    assert!(text.contains("How the trick works: https://dogechain.com/guides/copycat"));
     assert!(text.contains("waiting in the mempool"));
     assert!(text.contains(&format!(
         "{ADDR}  40 DOGE  (likely change back to the sender)"
