@@ -9,6 +9,7 @@ mod mcp;
 mod model;
 mod sanitize;
 mod schema;
+mod secret;
 mod skill;
 mod time;
 

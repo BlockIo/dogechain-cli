@@ -58,6 +58,10 @@ setup for other apps.
 
 ## Safety
 
+The CLI refuses input that looks like a private key or recovery phrase (exit
+2, `BAD_INPUT`) without sending it anywhere. Never pass one to it, or to any
+website or API.
+
 `tx` replies can carry `warnings`. A `lookalike_sender` warning means a
 transaction likely comes from an address made to look like one the receiver
 really uses (address poisoning). Surface it to the user, and never suggest
