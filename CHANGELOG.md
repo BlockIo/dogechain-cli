@@ -10,6 +10,19 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-02
+
+### Added
+
+- Lookups (`find`, `address`, `tx`, `block`, `labels`, `chart`) refuse input
+  that looks like a private key or recovery phrase, with exit code 2, before
+  anything is sent.
+
+### Changed
+
+- `supply` gives the yearly issuance and inflation at the past year's actual
+  block pace instead of assuming a block every 60 seconds.
+
 ## [0.6.1] - 2026-10-01
 
 ### Changed
@@ -139,7 +152,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.2...v0.6.0
 [0.5.2]: https://github.com/BlockIo/dogechain-cli/compare/v0.5.1...v0.5.2

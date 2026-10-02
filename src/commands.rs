@@ -16,6 +16,7 @@ use crate::cli::{Cli, Command, McpCommand, SkillCommand, SkillLocation, WatchWha
 use crate::error::{CliError, Result};
 use crate::mcp;
 use crate::model::*;
+use crate::secret;
 use crate::skill::{self, Scope};
 use crate::time::{ago, now, utc, utc_date, utc_minute};
 
@@ -24,6 +25,10 @@ const ADDRESS_PAGE_SIZE: u64 = 10;
 const RICHLIST_PAGE_SIZE: u64 = 100;
 
 pub fn run(cli: Cli, out: &mut dyn Write) -> Result<()> {
+    // Nothing that looks like a private key or recovery phrase is ever sent.
+    for input in lookup_inputs(&cli.command) {
+        secret::refuse_secrets(input)?;
+    }
     let json = cli.json;
     let api = || Api::new(Duration::from_secs(cli.timeout));
     match cli.command {
@@ -148,6 +153,19 @@ pub fn run(cli: Cli, out: &mut dyn Write) -> Result<()> {
         },
         Command::Schema => print_json(out, &crate::schema::schema()),
         Command::Guide => Ok(out.write_all(crate::GUIDE.as_bytes())?),
+    }
+}
+
+/// The user-supplied identifiers a command sends to the API.
+fn lookup_inputs(command: &Command) -> Vec<&str> {
+    match command {
+        Command::Find { query } => vec![query],
+        Command::Block { id } => vec![id],
+        Command::Tx { txid, .. } => vec![txid],
+        Command::Address { address, .. } => vec![address],
+        Command::Labels { addresses } => addresses.iter().map(String::as_str).collect(),
+        Command::Chart { series, .. } => vec![series],
+        _ => vec![],
     }
 }
 
@@ -508,13 +526,25 @@ fn show_supply(out: &mut dyn Write, r: &SupplyReply) -> Result<()> {
         r.supply.display(0),
         group_thousands(r.height.into())
     )?;
-    writeln!(
-        out,
-        "Each block adds {} DOGE, about {} DOGE a year: {:.2}% inflation over the next 12 months.",
-        r.per_block.display(0),
-        r.per_year.display(0),
-        r.inflation_next_12_months * 100.0
-    )?;
+    match &r.recent_pace {
+        // The realistic figure: the past year's actual block times.
+        Some(pace) => writeln!(
+            out,
+            "Each block adds {} DOGE. At the past year's pace (a block every {:.1} seconds), \
+             that is about {} DOGE a year: {:.2}% inflation over the next 12 months.",
+            r.per_block.display(0),
+            pace.block_seconds,
+            pace.per_year.display(0),
+            pace.inflation_next_12_months * 100.0
+        )?,
+        None => writeln!(
+            out,
+            "Each block adds {} DOGE, about {} DOGE a year: {:.2}% inflation over the next 12 months.",
+            r.per_block.display(0),
+            r.per_year.display(0),
+            r.inflation_next_12_months * 100.0
+        )?,
+    }
     Ok(())
 }
 

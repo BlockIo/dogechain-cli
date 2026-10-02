@@ -1028,3 +1028,59 @@ fn shows_dollar_values_at_the_time() {
             "Price then $0.0939 per DOGE · reward worth about $938.77",
         ));
 }
+
+#[test]
+fn never_sends_private_keys_or_recovery_phrases() {
+    let phrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
+    let wif = "6KbBFk8U7sxzfajBnm1JJWqLvdcpd97K9Sf5GPgP2z8A1nR4GZ7";
+    for args in [
+        vec!["find", phrase],
+        vec!["address", wif],
+        vec!["labels", ADDR, wif],
+    ] {
+        let m = mock(vec![]);
+        dogechain(&m)
+            .args(&args)
+            .assert()
+            .code(2)
+            .stderr(predicate::str::contains(
+                "looks like a private key or recovery phrase",
+            ));
+        assert!(
+            m.paths.lock().unwrap().is_empty(),
+            "nothing may be sent: {args:?}"
+        );
+    }
+    let m = mock(vec![]);
+    let out = dogechain(&m)
+        .args(["find", wif, "--json"])
+        .output()
+        .unwrap();
+    let v: Value = serde_json::from_slice(&out.stderr).unwrap();
+    assert_eq!(v["data"]["code"], "BAD_INPUT");
+}
+
+#[test]
+fn supply_uses_the_recent_pace() {
+    let supply = json!({
+        "supply": "156155592865.81425251", "height": 6398309, "per_block": "10000.00000000",
+        "per_year": "5259600000.00000000", "inflation_next_12_months": 0.0337,
+        "recent_pace": { "block_seconds": 63.4, "per_year": "4977336801.00000000",
+                         "inflation_next_12_months": 0.031874 }
+    });
+    dogechain(&mock(vec![ok(supply)]))
+        .arg("supply")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "At the past year's pace (a block every 63.4 seconds), that is about 4,977,336,801 DOGE a year: 3.19% inflation",
+        ));
+}
+
+#[test]
+fn find_kind_none_without_value() {
+    dogechain(&mock(vec![ok(json!({ "kind": "none" }))]))
+        .args(["find", "0xabc"])
+        .assert()
+        .code(3);
+}

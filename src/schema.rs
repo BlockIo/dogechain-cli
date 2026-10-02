@@ -49,7 +49,7 @@ pub fn schema() -> Value {
                 "does": "resolve a block height or hash, transaction id or address",
                 "api": "GET /api/v3/find?q=<query>",
                 "data": { "kind": "block | transaction | address", "value": "string or number" },
-                "notes": "no match exits 3; text mode then shows the matching block, transaction or address"
+                "notes": "no match exits 3 (data.kind none, without value); text mode shows the matching block, transaction or address. Input that looks like a private key or recovery phrase is refused locally with exit 2 and never sent; this applies to every lookup command"
             },
             "block <height|hash|latest>": {
                 "api": "GET /api/v3/block/<id>",
@@ -89,7 +89,7 @@ pub fn schema() -> Value {
             },
             "supply": {
                 "api": "GET /api/v3/supply",
-                "data": "supply, height, per_block, per_year, inflation_next_12_months (fraction)"
+                "data": "supply, height, per_block, per_year and inflation_next_12_months (fraction; both assume a block every 60 s), recent_pace{block_seconds, per_year, inflation_next_12_months} (at the past 365 days' actual pace; text output uses this)"
             },
             "richlist [--page N]": {
                 "aliases": ["top"],

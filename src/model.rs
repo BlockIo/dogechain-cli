@@ -253,6 +253,17 @@ pub struct SupplyReply {
     pub supply: Doge,
     pub height: u64,
     pub per_block: Doge,
+    /// Assumes a block every 60 seconds.
+    pub per_year: Doge,
+    pub inflation_next_12_months: f64,
+    /// The same figures at the past 365 days' actual block pace.
+    #[serde(default)]
+    pub recent_pace: Option<RecentPace>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RecentPace {
+    pub block_seconds: f64,
     pub per_year: Doge,
     pub inflation_next_12_months: f64,
 }
