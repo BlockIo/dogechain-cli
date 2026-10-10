@@ -480,13 +480,35 @@ fn show_fees(out: &mut dyn Write, r: &FeesReply) -> Result<()> {
             .unwrap_or_default()
     };
     let sp = &r.simple_payment;
-    writeln!(
-        out,
-        "A simple payment ({} bytes) needs at least {} DOGE in fees{}.",
-        sp.bytes,
-        sp.min_fee,
-        usd(sp.min_fee)
-    )?;
+    match sp.suggested_fee {
+        Some(suggested) => {
+            let basis = r
+                .suggested_fee_basis
+                .as_deref()
+                .map(|b| format!(" Why: {b}."))
+                .unwrap_or_default();
+            writeln!(
+                out,
+                "Suggested fee for a simple payment ({} bytes): {} DOGE{}.{basis}",
+                sp.bytes,
+                suggested,
+                usd(suggested)
+            )?;
+            writeln!(
+                out,
+                "The least it can pay: {} DOGE{}.",
+                sp.min_fee,
+                usd(sp.min_fee)
+            )?;
+        }
+        None => writeln!(
+            out,
+            "A simple payment ({} bytes) needs at least {} DOGE in fees{}.",
+            sp.bytes,
+            sp.min_fee,
+            usd(sp.min_fee)
+        )?,
+    }
     if let Some(paid) = r.median_fee_paid {
         let over = r
             .median_fee_paid_blocks

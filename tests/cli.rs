@@ -1085,3 +1085,27 @@ fn find_kind_none_without_value() {
         .assert()
         .code(3);
 }
+
+#[test]
+fn fees_lead_with_the_suggested_fee() {
+    let fees = json!({
+        "fee_rate_koinu_per_byte": { "min": 1000.0, "median": 1500.0, "max": 50000.0 },
+        "simple_payment": { "bytes": 226, "min_fee": "0.00226452", "suggested_fee": "0.01000000" },
+        "suggested_fee_rate_koinu_per_byte": 1250.0,
+        "suggested_fee_basis": "the next block has room for everything waiting",
+        "median_fee_paid": null, "median_fee_paid_blocks": null,
+        "mempool": { "txs": 3, "bytes": 700, "next_block_txs": 3 },
+        "price_usd": null
+    });
+    let out = dogechain(&mock(vec![ok(fees)]))
+        .arg("fees")
+        .output()
+        .unwrap();
+    let text = String::from_utf8(out.stdout).unwrap();
+    assert!(
+        text.starts_with(
+            "Suggested fee for a simple payment (226 bytes): 0.01 DOGE. Why: the next block has room for everything waiting.\nThe least it can pay: 0.00226452 DOGE.\n"
+        ),
+        "{text}"
+    );
+}

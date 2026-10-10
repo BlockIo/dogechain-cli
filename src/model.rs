@@ -225,6 +225,9 @@ pub struct FeesReply {
     pub median_fee_paid_blocks: Option<u64>,
     pub mempool: FeesMempool,
     pub price_usd: Option<f64>,
+    /// Why the suggested fee is what it is, in plain English.
+    #[serde(default)]
+    pub suggested_fee_basis: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -239,6 +242,9 @@ pub struct FeeRates {
 pub struct SimplePayment {
     pub bytes: u64,
     pub min_fee: Doge,
+    /// What the API suggests paying to make the next block.
+    #[serde(default)]
+    pub suggested_fee: Option<Doge>,
 }
 
 #[derive(Debug, Deserialize)]

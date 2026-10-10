@@ -85,7 +85,7 @@ pub fn schema() -> Value {
             },
             "fees": {
                 "api": "GET /api/v3/fees",
-                "data": "fee_rate_koinu_per_byte{min, median, max}, simple_payment{bytes, min_fee}, median_fee_paid, median_fee_paid_blocks, mempool{txs, bytes, next_block_txs}, price_usd"
+                "data": "fee_rate_koinu_per_byte{min, median, max}, simple_payment{bytes, min_fee, suggested_fee}, suggested_fee_rate_koinu_per_byte, suggested_fee_basis (plain English), median_fee_paid, median_fee_paid_blocks, mempool{txs, bytes, next_block_txs}, price_usd"
             },
             "supply": {
                 "api": "GET /api/v3/supply",
