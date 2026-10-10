@@ -10,6 +10,13 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-10-09
+
+### Changed
+
+- `fees` leads with Dogechain.com's suggested fee for a simple payment and
+  why, then the minimum.
+
 ## [0.7.1] - 2026-10-02
 
 ### Changed
@@ -159,7 +166,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.2...HEAD
+[0.7.2]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.6.0...v0.6.1
