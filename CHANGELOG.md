@@ -10,6 +10,14 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-10-11
+
+### Changed
+
+- `fees` describes the minimum as the least any pool has recently mined
+  (which may take longer to confirm), matching how Dogechain.com now
+  calculates it. Dollar amounts under $0.0001 show as `<$0.0001`.
+
 ## [0.7.2] - 2026-10-09
 
 ### Changed
@@ -166,7 +174,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.3...HEAD
+[0.7.3]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/BlockIo/dogechain-cli/compare/v0.6.1...v0.7.0

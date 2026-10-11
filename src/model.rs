@@ -241,8 +241,9 @@ pub struct FeeRates {
 #[derive(Debug, Deserialize)]
 pub struct SimplePayment {
     pub bytes: u64,
+    /// The least any pool has recently mined (never below the relay floor).
     pub min_fee: Doge,
-    /// What the API suggests paying to make the next block.
+    /// What recent blocks show gets mined within a few minutes.
     #[serde(default)]
     pub suggested_fee: Option<Doge>,
 }
