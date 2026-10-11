@@ -386,7 +386,7 @@ fn fees_in_plain_english() {
         .assert()
         .success()
         .stdout(predicate::str::contains(
-            "A simple payment (226 bytes) needs at least 0.00226 DOGE in fees ($0.0002).",
+            "The least a simple payment (226 bytes) has recently been mined with: 0.00226 DOGE ($0.0002).",
         ))
         .stdout(predicate::str::contains("min 0.01, median 0.015, max 0.5"));
 }
@@ -1104,7 +1104,7 @@ fn fees_lead_with_the_suggested_fee() {
     let text = String::from_utf8(out.stdout).unwrap();
     assert!(
         text.starts_with(
-            "Suggested fee for a simple payment (226 bytes): 0.01 DOGE. Why: the next block has room for everything waiting.\nThe least it can pay: 0.00226452 DOGE.\n"
+            "Suggested fee for a simple payment (226 bytes): 0.01 DOGE. Why: the next block has room for everything waiting.\nThe least any pool has recently mined: 0.00226452 DOGE, which may take longer to confirm.\n"
         ),
         "{text}"
     );

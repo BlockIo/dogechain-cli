@@ -476,7 +476,10 @@ fn show_network(out: &mut dyn Write, r: &NetworkReply) -> Result<()> {
 fn show_fees(out: &mut dyn Write, r: &FeesReply) -> Result<()> {
     let usd = |d: Doge| {
         r.price_usd
-            .map(|p| format!(" (${:.4})", d.0 as f64 / KOINU_PER_DOGE * p))
+            .map(|p| match d.0 as f64 / KOINU_PER_DOGE * p {
+                v if v > 0.0 && v < 0.0001 => " (<$0.0001)".to_owned(),
+                v => format!(" (${v:.4})"),
+            })
             .unwrap_or_default()
     };
     let sp = &r.simple_payment;
@@ -496,14 +499,14 @@ fn show_fees(out: &mut dyn Write, r: &FeesReply) -> Result<()> {
             )?;
             writeln!(
                 out,
-                "The least it can pay: {} DOGE{}.",
+                "The least any pool has recently mined: {} DOGE{}, which may take longer to confirm.",
                 sp.min_fee,
                 usd(sp.min_fee)
             )?;
         }
         None => writeln!(
             out,
-            "A simple payment ({} bytes) needs at least {} DOGE in fees{}.",
+            "The least a simple payment ({} bytes) has recently been mined with: {} DOGE{}.",
             sp.bytes,
             sp.min_fee,
             usd(sp.min_fee)
