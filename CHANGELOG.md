@@ -10,6 +10,13 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.7.5] - 2026-10-19
+
+### Security
+
+- Update rustls to 0.23.46 for RUSTSEC-2026-0346, -0347, -0348 and -0349,
+  and other dependencies to their latest compatible versions.
+
 ## [0.7.4] - 2026-10-19
 
 ### Fixed
@@ -181,7 +188,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.4...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.5...HEAD
+[0.7.5]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.4...v0.7.5
 [0.7.4]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.1...v0.7.2
