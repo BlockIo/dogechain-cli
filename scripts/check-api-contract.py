@@ -19,7 +19,7 @@ REQUIRED = [
     ("/blocks/latest", [], ["blocks"]),
     ("/blocks/latest", ["blocks", "[]"], ["height", "time", "num_txs", "reward_and_fees"]),
     ("/tx/{txid}", [], ["transaction", "explain"]),
-    ("/tx/{txid}", ["transaction"], ["hash", "confirmations", "time", "fee", "size",
+    ("/tx/{txid}", ["transaction"], ["hash", "confirmations", "fee", "size",
                                      "inputs", "outputs"]),
     ("/tx/{txid}", ["transaction", "outputs", "[]"], ["index", "value"]),
     ("/tx/{txid}", ["explain"], ["headline", "detail"]),

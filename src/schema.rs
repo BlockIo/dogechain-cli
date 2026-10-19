@@ -62,7 +62,7 @@ pub fn schema() -> Value {
             "tx <txid> [--explain]": {
                 "api": "GET /api/v3/tx/<txid>",
                 "data": {
-                    "transaction": "hash, confirmations, block_hash, block_height|null, time, fee, size, vsize, locktime, inputs[{index, address|null, value, previous_output{hash,index}}], outputs[{index, address|null, value, is_change, spent}]",
+                    "transaction": "hash, confirmations, block_hash, block_height|null, time|null (briefly null while its block is being added), fee, size, vsize, locktime, inputs[{index, address|null, value, previous_output{hash,index}}], outputs[{index, address|null, value, is_change, spent}]",
                     "explain": "headline, detail, sent, change, fee, change_outputs[index]",
                     "warnings": "[{kind: \"lookalike_sender\", sender, imitates, receiver, shared_prefix, sender_kind, real_txid}]"
                 },

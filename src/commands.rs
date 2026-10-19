@@ -310,7 +310,11 @@ fn show_tx(out: &mut dyn Write, r: &TxReply, explain_only: bool) -> Result<()> {
         ),
         _ => "waiting in the mempool (unconfirmed)".into(),
     };
-    writeln!(out, "Status {status} · {}", utc(tx.time))?;
+    let when = tx
+        .time
+        .map(utc)
+        .unwrap_or_else(|| "time not known yet".into());
+    writeln!(out, "Status {status} · {when}")?;
     writeln!(out, "From:")?;
     for i in &tx.inputs {
         let who = i.address.as_deref().unwrap_or("newly mined coins");

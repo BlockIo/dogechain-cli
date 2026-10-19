@@ -82,7 +82,8 @@ pub struct Transaction {
     pub hash: String,
     pub confirmations: i64,
     pub block_height: Option<u64>,
-    pub time: i64,
+    /// None for a few seconds while the transaction's block is being added.
+    pub time: Option<i64>,
     pub fee: Doge,
     pub size: u64,
     pub inputs: Vec<Input>,
