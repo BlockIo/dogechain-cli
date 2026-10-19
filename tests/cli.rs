@@ -1109,3 +1109,16 @@ fn fees_lead_with_the_suggested_fee() {
         "{text}"
     );
 }
+
+#[test]
+fn tx_time_can_be_unknown_briefly() {
+    let mut t = tx(json!([]));
+    t["transaction"]["time"] = Value::Null;
+    dogechain(&mock(vec![ok(t)]))
+        .args(["tx", TXID])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains(
+            "Status waiting in the mempool (unconfirmed) · time not known yet",
+        ));
+}
