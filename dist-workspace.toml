@@ -27,6 +27,10 @@ install-updater = false
 github-custom-job-permissions = { "publish-npm" = { contents = "read", id-token = "write" } }
 # Sign release artifacts with GitHub build provenance attestations
 github-attestations = true
+# Embed the dependency list in binaries so `cargo audit bin` can check them
+cargo-auditable = true
+# release.yml installs a fixed cargo-auditable version; re-apply that edit after `dist generate`
+allow-dirty = ["ci"]
 
 # Pin third-party actions to exact commits
 [dist.github-action-commits]
