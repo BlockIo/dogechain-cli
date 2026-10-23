@@ -10,6 +10,13 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.7.6] - 2026-10-22
+
+### Security
+
+- Update tokio to 1.54.1 (RUSTSEC-2026-0384), rustls-webpki to 0.103.16
+  (RUSTSEC-2026-0382) and webpki-root-certs to 1.0.10 (RUSTSEC-2026-0383).
+
 ## [0.7.5] - 2026-10-19
 
 ### Security
@@ -188,7 +195,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.5...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.6...HEAD
+[0.7.6]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.5...v0.7.6
 [0.7.5]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.4...v0.7.5
 [0.7.4]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.2...v0.7.3
