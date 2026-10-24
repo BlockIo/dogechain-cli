@@ -10,6 +10,13 @@ names, environment variables, exit codes, error codes, and the shape of
 
 ## [Unreleased]
 
+## [0.7.7] - 2026-10-23
+
+### Changed
+
+- Release binaries embed their dependency list, so `cargo audit bin` can
+  check an installed `dogechain` directly.
+
 ## [0.7.6] - 2026-10-22
 
 ### Security
@@ -195,7 +202,8 @@ names, environment variables, exit codes, error codes, and the shape of
 - Installers: Homebrew (`blockio/tap/dogechain`), npm (`dogechain`), shell script, PowerShell,
   and prebuilt binaries for macOS, Linux and Windows.
 
-[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.6...HEAD
+[Unreleased]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.7...HEAD
+[0.7.7]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.6...v0.7.7
 [0.7.6]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.5...v0.7.6
 [0.7.5]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.4...v0.7.5
 [0.7.4]: https://github.com/BlockIo/dogechain-cli/compare/v0.7.3...v0.7.4

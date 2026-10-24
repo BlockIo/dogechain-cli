@@ -140,6 +140,9 @@ jobs:
           pattern: artifacts-*
           path: target/distrib/
           merge-multiple: true
+      # Edited by hand: a fixed cargo-auditable version instead of the latest installer
+      - name: Install cargo-auditable
+        run: cargo install --locked cargo-auditable@0.7.7
       - name: Install dependencies
         run: |
           ${{ matrix.packages_install }}
